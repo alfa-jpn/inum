@@ -37,7 +37,9 @@ How to use Enum(Inum).
 p AnimeType::EVANGELION       # => EVANGELION
 p AnimeType::EVANGELION.to_i  # => 0
 
-type = AnimeType::Parse(0)    # parse object to instance of AnimeType.
+# parse object to instance of AnimeType.
+# object can use class of Symbol or String or Integer or Self.
+type = AnimeType::parse(0)
 p type.equal?(AnimeType::EVANGELION) # => true (member of Enum is singleton.)
 
 p AnimeType::HARUHI.eql?('HARUHI')   # => true (eql? can compare all parsable object.)
