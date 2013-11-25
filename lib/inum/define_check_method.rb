@@ -1,7 +1,16 @@
 module Inum
+  # DefinedCheckMethod module should be extend.
+  #
+  # @example
+  # class fruit
+  #   extend Inum::DefineCheckMethod
+  #   define_check_method :type, fruit_type
+  #   
+  #   attr_accessor :type
+  # end
+  #
   module DefineCheckMethod
-
-    # define compare method.
+    # Define compare method in class.
     #
     # @param variable_name [String]     name of variable.
     # @param enum_class    [Inum::Base] class of extended Enum::EnumBase.
@@ -9,11 +18,10 @@ module Inum
       self.class_eval do
         enum_class::DEFINED_ENUMS.each_key do |enum_name|
           define_method("#{enum_name.downcase}?") do
-            enum_class::parse(send(variable_name)) == enum_class::parse(enum_name)
+            enum_class::parse(enum_name).eql?(send(variable_name))
           end
         end
       end
     end
-
   end
 end
