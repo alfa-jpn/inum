@@ -3,11 +3,11 @@ module Inum
   #
   # @abstract Inum class should be a inheritance of Inum::Base.
   # @example
-  # class fruit_type < Inum::Base
-  #   define_enum :APPLE,  0
-  #   define_enum :BANANA, 1  
-  #   define_enum :ORANGE, 2
-  # end
+  #   class FruitType < Inum::Base
+  #     define_enum :APPLE,  0
+  #     define_enum :BANANA, 1  
+  #     define_enum :ORANGE, 2
+  #   end
   class Base
    
     attr_accessor :value

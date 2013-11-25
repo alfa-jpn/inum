@@ -2,12 +2,12 @@ module Inum
   # DefinedCheckMethod module should be extend.
   #
   # @example
-  # class fruit
-  #   extend Inum::DefineCheckMethod
-  #   define_check_method :type, fruit_type
+  #   class Fruit
+  #     extend Inum::DefineCheckMethod
+  #     define_check_method :type, FruitType
   #   
-  #   attr_accessor :type
-  # end
+  #     attr_accessor :type
+  #   end
   #
   module DefineCheckMethod
     # Define compare method in class.
