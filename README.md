@@ -1,6 +1,6 @@
 # Inum
 
-TODO: Write a gem description
+Inum(enumerated type of Integer) provide a Java-enum-like Enum.
 
 ## Installation
 
@@ -18,7 +18,68 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+
+### Define Enum(Inum)
+For example create enum(inum) of Japanese Anime.
+
+``` ruby
+class AnimeType < Inum::Base
+  define_enum :EVANGELION, 0
+  define_enum :HARUHI,     1
+  define_enum :NYARUKO,    2
+end
+```
+
+### Use Enum(Inum)
+How to use Enum(Inum).
+
+``` ruby
+p AnimeType::EVANGELION       # => EVANGELION
+p AnimeType::EVANGELION.to_i  # => 0
+
+type = AnimeType::Parse(0)    # parse object to instance of AnimeType.
+p type.equal?(AnimeType::EVANGELION) # => true (member of Enum is singleton.)
+
+p AnimeType::HARUHI.eql?('HARUHI')   # => true (eql? can compare all parsable object.)
+
+```
+
+- more detail is [Class::Base](http://rubydoc.info/github/alfa-jpn/inum/Inum/Base)
+
+### Use define\_check\_method
+define\_check\_method can extend your class.
+
+``` ruby
+class Anime
+  extend Inum::DefineCheckMethod
+  
+  attr_accessor :type
+
+  define_check_method :type, AnimeType
+end
+
+```
+
+define\_check\_method generates methods for type confirmation. 
+
+``` ruby
+anime = Anime.new
+anime.type = AnimeType::NYARUKO
+
+p anime.evangelion? # => false
+p anime.nyaruko?    # => true
+
+
+# type can use all parsable object.
+anime.type = 1
+p anime.haruhi? # => true
+
+```
+
+
+## API DOCUMENT
+
+- [Documentation for alfa-jpn/Inum(master)](http://rubydoc.info/github/alfa-jpn/inum/frames)
 
 ## Contributing
 
