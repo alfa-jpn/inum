@@ -30,6 +30,12 @@ class AnimeType < Inum::Base
 end
 ```
 
+If value(integer) is omitted, value(integer) is auto-incremented.
+
+``` ruby
+define_enum :EVANGELION  # => value will auto-increment.
+```
+
 ### Use Enum(Inum)
 How to use Enum(Inum).
 
@@ -43,6 +49,9 @@ type = AnimeType::parse(0)
 p type.equal?(AnimeType::EVANGELION) # => true (member of Enum is singleton.)
 
 p AnimeType::HARUHI.eql?('HARUHI')   # => true (eql? can compare all parsable object.)
+
+p AnimeType::HARUHI + 1   # => NYARUKO
+p AnimeType::NYARUKO - 1  # => HARUHI
 
 ```
 

@@ -42,6 +42,18 @@ describe Inum::Base do
     }.to raise_error
   end
   
+  it 'define_method called without value, value is autoincrement.' do
+    enum = Class.new(Inum::Base) do
+      define_enum :REDBULL
+      define_enum :MONSTER
+      define_enum :BURN
+    end
+    
+    expect(enum::REDBULL.to_i).to eq(0)
+    expect(enum::MONSTER.to_i).to eq(1)
+    expect(enum::BURN.to_i).to    eq(2)
+  end
+  
   context 'define class of extended Inum::Base,' do
     before(:each) do
       @enum = Class.new(Inum::Base) do
@@ -66,6 +78,16 @@ describe Inum::Base do
       expect( @enum::BURN.equal?(@enum::BURN )).to be_true
     end
     
+    it '+ return a correct Inum.' do
+      expect(@enum::REDBULL + 1).to eq(@enum::MONSTER)
+      expect(@enum::REDBULL + @enum::MONSTER).to eq(@enum::MONSTER)
+    end
+
+    it '- return a correct Inum.' do
+      expect(@enum::BURN - 1).to eq(@enum::MONSTER)
+      expect(@enum::BURN - @enum::MONSTER).to eq(@enum::MONSTER)
+    end
+    
     it 'eql? return a correct result.' do
       expect( @enum::REDBULL.eql?(0) ).to be_true
       expect( @enum::REDBULL.eql?(1) ).to be_false
@@ -77,6 +99,10 @@ describe Inum::Base do
 
     it 'to_s return string.' do
       expect( @enum::MONSTER.to_s ).to eq('MONSTER')
+    end
+    
+    it 'length return count of enum.' do
+      expect(@enum::length).to eq(3)
     end
     
     it 'to_a return Array' do

@@ -23,6 +23,22 @@ module Inum
       end
       @value = value
     end
+    
+    # plus object.
+    #
+    # @param value [Integer] plus value.(call to_i in this method.)
+    # @return [Inum::Base] object after plus value.
+    def + (value)
+      self.class.parse(@value + value.to_i)
+    end
+    
+    # minus object.
+    #
+    # @param value [Integer] plus value.(call to_i in this method.)
+    # @return [Inum::Base] object after plus value.
+    def - (value)
+      self.class.parse(@value - value.to_i)
+    end
 
     # Compare object.
     #
@@ -46,6 +62,13 @@ module Inum
       self.class.defined_enums.key(@value).to_s
     end
 
+    # get Enum length.
+    #
+    # @return [Integer] count of Enums.
+    def self.length
+      defined_enums.length
+    end
+    
     # return array of Enums.
     #
     # @return [Array<Array<String, Integer>>] sorted array of Enums.
@@ -83,9 +106,8 @@ module Inum
     # Define Enum in called class.
     #
     # @param name  [String, Symbol] name of Enum.
-    # @param value [Integer,Fixnum] value of Enum.
-    def self.define_enum(name, value)
-
+    # @param value [Integer,Fixnum] value of Enum.(default:autoincrement for 0.)
+    def self.define_enum(name, value = defined_enums.size)
       validate_enum_args!(name, value)
 
       defined_enums[name] = value
