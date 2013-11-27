@@ -10,6 +10,8 @@ module Inum
   #   end
   #
   module DefineCheckMethod
+    require 'inum/utils'
+    
     # Define compare method in class.
     #
     # @param variable_name [String]     name of variable.
@@ -17,7 +19,7 @@ module Inum
     def define_check_method(variable_name, enum_class)
       self.class_eval do
         enum_class::DEFINED_ENUMS.each_key do |enum_name|
-          define_method("#{enum_name.downcase}?") do
+          define_method("#{Inum::Utils::underscore(enum_name)}?") do
             enum_class::parse(enum_name).eql?(send(variable_name))
           end
         end
