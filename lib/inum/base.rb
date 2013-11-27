@@ -10,17 +10,15 @@ module Inum
   #   end
   class Base
    
-    attr_accessor :value
     private_class_method :new
 
     # initialize Inum::Base with value.
-    # @note Inum::Base can't call new method.
+    # @note The instance of Enum Member is singleton.
     #
+    # @param label [Symbol]  label of Enum.
     # @param value [Integer] value of Enum.
-    def initialize(value)
-      unless self.class.defined_enums.has_value?(value)
-        raise ArgumentError, "unknown value #{value}!"
-      end
+    def initialize(label, value)
+      @label = label
       @value = value
     end
     
@@ -57,11 +55,18 @@ module Inum
 
     # Enum to String.
     #
-    # @return [String] string value of Enum.
+    # @return [String] string value(label) of Enum.
     def to_s
-      self.class.defined_enums.key(@value).to_s
+      @label.to_s
     end
 
+    # get all labels of Enum.
+    #
+    # @return [Array<Symbol>] all labels of Enum.
+    def self.labels
+      defined_enums.keys
+    end
+    
     # get Enum length.
     #
     # @return [Integer] count of Enums.
@@ -71,14 +76,14 @@ module Inum
     
     # return array of Enums.
     #
-    # @return [Array<Array<String, Integer>>] sorted array of Enums.
+    # @return [Array<Array<Symbol, Integer>>] sorted array of Enums.
     def self.to_a
-      defined_enums.map{|k,v| [k.to_s,v] }.sort{|a,b| a[1] <=> b[1] }
+      defined_enums.flatten(0).sort{|a,b| a[1] <=> b[1] }
     end
     
     # return hash of Enums.
     #
-    # @return [Hash] hash of Enums.
+    # @return [Hash<Symbol, Integer>] hash of Enums.
     def self.to_h
       defined_enums.dup
     end
@@ -101,17 +106,26 @@ module Inum
           raise ArgumentError, "#{object} is nani?"
       end
     end
+    
+    # get all values of Enum.
+    #
+    # @return [Array<Integer>] all values of Enum.
+    def self.values
+      defined_enums.values
+    end
 
     private
     # Define Enum in called class.
     #
-    # @param name  [String, Symbol] name of Enum.
-    # @param value [Integer,Fixnum] value of Enum.(default:autoincrement for 0.)
-    def self.define_enum(name, value = defined_enums.size)
-      validate_enum_args!(name, value)
+    # @param label [Symbol]  label of Enum.
+    # @param value [Integer] value of Enum.(default:autoincrement for 0.)
+    def self.define_enum(label, value = defined_enums.size)
+      value = value.to_i
+      
+      validate_enum_args!(label, value)
 
-      defined_enums[name] = value
-      self.const_set(name, new(value))
+      defined_enums[label] = value
+      self.const_set(label, new(label, value))
     end
     
     # get hash of :DEFINED_ENUMS.
@@ -127,27 +141,23 @@ module Inum
     
     # Validate enum args, and raise exception.
     # 
-    # @param name  [Object]  name of Enum.
-    # @param value [Object] value of Enum.
-    def self.validate_enum_args!(name, value)
-      unless name.instance_of?(String) or name.instance_of?(Symbol)
-        raise ArgumentError, "#{name}<#{name.class}> isn't String or Symbol."
+    # @param label [Object]  label of Enum.
+    # @param value [Integer] value of Enum.
+    def self.validate_enum_args!(label, value)
+      unless label.instance_of?(Symbol)
+        raise ArgumentError, "The label(#{label}!) isn't instance of Symbol."
       end
       
-      unless value.instance_of?(Integer) or value.instance_of?(Fixnum)
-        raise ArgumentError, "#{value}<#{value.class}> isn't Integer or Fixnum."
-      end
-      
-      if name == :DEFINED_ENUMS
-        raise ArgumentError, "#{name} is keyword."
+      if label == :DEFINED_ENUMS
+        raise ArgumentError, "The label(#{label}!) is keyword."
       end
 
-      if defined_enums.has_key?(name)
-        raise ArgumentError, "name(#{name}!) already exists!!"
+      if defined_enums.has_key?(label)
+        raise ArgumentError, "The label(#{label}!) already exists!!"
       end
       
       if defined_enums.has_value?(value)
-        raise ArgumentError, "value(#{value}!) already exists!!"
+        raise ArgumentError, "The value(#{value}!) already exists!!"
       end
     end
   end
