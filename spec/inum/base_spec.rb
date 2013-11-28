@@ -76,7 +76,13 @@ describe Inum::Base do
     it 'A enum instance is equal instance.' do
       expect( @enum::BURN.equal?(@enum::BURN )).to be_true
     end
-    
+
+    it '<=> return a correct value.' do
+      expect( (@enum::REDBULL <=> 1) < 0 ).to be_true
+      expect( (@enum::REDBULL <=> 0) == 0 ).to be_true
+      expect( (@enum::MONSTER <=> 0) > 0 ).to be_true
+    end
+
     it '+ return a correct Inum.' do
       expect(@enum::REDBULL + 1).to eq(@enum::MONSTER)
       expect(@enum::REDBULL + @enum::MONSTER).to eq(@enum::MONSTER)
@@ -86,7 +92,11 @@ describe Inum::Base do
       expect(@enum::BURN - 1).to eq(@enum::MONSTER)
       expect(@enum::BURN - @enum::MONSTER).to eq(@enum::MONSTER)
     end
-    
+
+    it 'Comparable module enable.' do
+      expect(@enum::REDBULL.between?(0,1)).to be_true
+    end
+
     it 'eql? return a correct result.' do
       expect( @enum::REDBULL.eql?(0) ).to be_true
       expect( @enum::REDBULL.eql?(1) ).to be_false
@@ -99,7 +109,22 @@ describe Inum::Base do
     it 'to_s return string.' do
       expect( @enum::MONSTER.to_s ).to eq('MONSTER')
     end
-    
+
+    it 'each can execute block with enum' do
+      count = 0
+      expect{
+        @enum::each do |enum|
+          expect(enum.instance_of?(@enum)).to be_true
+          count += 1
+        end
+      }.to change{count}.by(3)
+    end
+
+    it 'Enumerable module enable.' do
+      expect(@enum::count).to eq(3)
+      expect(@enum::include?(@enum::REDBULL)).to be_true
+    end
+
     it 'labels return Array<Symbol>.' do
       expect(@enum::labels.length).to eq(3) 
       expect(@enum::labels.instance_of?(Array)).to     be_true

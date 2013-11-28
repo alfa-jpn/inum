@@ -9,7 +9,9 @@ module Inum
   #     define_enum :ORANGE, 2
   #   end
   class Base
-   
+    extend Enumerable
+    include Comparable
+
     private_class_method :new
 
     # initialize Inum::Base with value.
@@ -21,7 +23,15 @@ module Inum
       @label = label
       @value = value
     end
-    
+
+    # Compare object.
+    #
+    # @param object [Object] parsable object.
+    # @return [Integer] same normal <=>.
+    def <=> (object)
+      @value <=> self.class.parse(object).to_i
+    end
+
     # plus object.
     #
     # @param value [Integer] plus value.(call to_i in this method.)
@@ -58,6 +68,13 @@ module Inum
     # @return [String] string value(label) of Enum.
     def to_s
       @label.to_s
+    end
+
+    # Execute the yield(block) with each member of enum.
+    #
+    # @yield [enum] instance of enum.
+    def self.each
+      defined_enums.each_key {|key| yield parse(key.to_s)}
     end
 
     # get all labels of Enum.
