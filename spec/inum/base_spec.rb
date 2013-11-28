@@ -2,8 +2,8 @@ require 'rspec'
 require 'spec_helper'
 
 describe Inum::Base do
-  
-  it 'define_method validate correct' do
+
+  it 'define_enum validate correct' do
     # correct.
     expect{
       Class.new(Inum::Base) { define_enum :REDBULL,  0 }  
@@ -40,8 +40,8 @@ describe Inum::Base do
       }
     }.to raise_error
   end
-  
-  it 'define_method called without value, value is autoincrement.' do
+
+  it 'define_enum called without value, value is autoincrement.' do
     enum = Class.new(Inum::Base) do
       define_enum :REDBULL
       define_enum :MONSTER
@@ -52,9 +52,18 @@ describe Inum::Base do
     expect(enum::MONSTER.to_i).to eq(1)
     expect(enum::BURN.to_i).to    eq(2)
   end
-  
+
+  it 'i18n.t called when call define_enum.' do
+    I18n.should_receive(:t).with('class.redbull')
+
+    Class.new(Inum::Base) do
+      define_enum :REDBULL
+    end
+  end
+
   context 'define class of extended Inum::Base,' do
     before(:each) do
+      I18n.stub(:t).and_return('Good drink!')
       @enum = Class.new(Inum::Base) do
         define_enum :REDBULL,  0
         define_enum :MONSTER,  1
@@ -108,6 +117,10 @@ describe Inum::Base do
 
     it 'to_s return string.' do
       expect( @enum::MONSTER.to_s ).to eq('MONSTER')
+    end
+
+    it 'to_t return localized string.' do
+      expect( @enum::REDBULL.to_t ).to eq('Good drink!')
     end
 
     it 'each can execute block with enum' do

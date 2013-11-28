@@ -1,4 +1,7 @@
 module Inum
+  require 'i18n'
+  require 'inum/utils'
+
   # InumBase class.
   #
   # @abstract Inum class should be a inheritance of Inum::Base.
@@ -22,6 +25,8 @@ module Inum
     def initialize(label, value)
       @label = label
       @value = value
+
+      @localized_enum = I18n.t(self.class.i18n_key(label))
     end
 
     # Compare object.
@@ -68,6 +73,14 @@ module Inum
     # @return [String] string value(label) of Enum.
     def to_s
       @label.to_s
+    end
+
+    # Translate Enum to localized string.(use i18n)
+    # @note find default `Namespace.Classname.EnumMember`
+    #
+    # @return [String] localized string of Enum.
+    def to_t
+      @localized_enum
     end
 
     # Execute the yield(block) with each member of enum.
@@ -148,6 +161,16 @@ module Inum
     # get hash of :DEFINED_ENUMS.
     def self.defined_enums
       self.const_get(:DEFINED_ENUMS)
+    end
+
+    # get key for I18n.t method.
+    # @note default: Namespace.Classname.Label(label of enum member.)
+    #
+    # @param label [Symbol] label of enum member.
+    # @return [String] key for I18n.t method.
+    # @abstract If change key from the default.
+    def self.i18n_key(label)
+      Inum::Utils::underscore("#{self.class.name}::#{label}")
     end
 
     # call after inherited.
