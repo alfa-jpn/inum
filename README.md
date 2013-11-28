@@ -1,6 +1,7 @@
 # Inum
 
 Inum(enumerated type of Integer) provide a Java-enum-like Enum.
+Inum has a function to localize by i18n.
 
 ## Installation
 
@@ -42,6 +43,7 @@ How to use Enum(Inum).
 ``` ruby
 p AnimeType::EVANGELION       # => EVANGELION
 p AnimeType::EVANGELION.to_i  # => 0
+p AnimeType::EVANGELION.to_t  # => エヴァンゲリオン (i18n find `anime_type.evangelion`.)
 
 # parse object to instance of AnimeType.
 # object can use class of Symbol or String or Integer or Self.
@@ -53,7 +55,11 @@ p AnimeType::HARUHI.eql?('HARUHI')   # => true (eql? can compare all parsable ob
 p AnimeType::HARUHI + 1   # => NYARUKO
 p AnimeType::NYARUKO - 1  # => HARUHI
 
+# can use each method.
+AnimeType::each {|enum| p enum }
+
 ```
+can use Enumerable and Comparable.
 
 - more detail is [Class::Base](http://rubydoc.info/github/alfa-jpn/inum/Inum/Base)
 
@@ -87,6 +93,16 @@ p anime.haruhi? # => true
 
 ```
 
+### Localize(i18n)
+to_t methods localize enum by i18n.
+default i18n key is name_space.class_name.enum_member_label.
+If change default, Override i18n_key class method.
+``` ruby
+# default i18n_key.
+def self.i18n_key(label)
+  Inum::Utils::underscore("#{self.class.name}::#{label}")
+end
+```
 
 ## API DOCUMENT
 
@@ -99,3 +115,5 @@ p anime.haruhi? # => true
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+# I have poor English. Please help meeeeeeeee!!!!
