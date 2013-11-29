@@ -3,7 +3,7 @@ require 'spec_helper'
 
 describe Inum::DefineCheckMethod do
 
-  context 'create class of called define_check_method,' do
+  context 'create class of called define_check_method' do
     before(:each) do
       enum = @enum = Class.new(Inum::Base) do
         define_enum :REDBULL,  0

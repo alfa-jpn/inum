@@ -8,7 +8,7 @@ module Inum
   # @example
   #   class FruitType < Inum::Base
   #     define_enum :APPLE,  0
-  #     define_enum :BANANA, 1  
+  #     define_enum :BANANA, 1
   #     define_enum :ORANGE, 2
   #   end
   class Base
@@ -44,7 +44,7 @@ module Inum
     def + (value)
       self.class.parse(@value + value.to_i)
     end
-    
+
     # minus object.
     #
     # @param value [Integer] plus value.(call to_i in this method.)
@@ -60,9 +60,9 @@ module Inum
     def eql?(object)
       self.equal?(self.class.parse(object))
     end
-    
+
     # Enum to Integer.
-    # 
+    #
     # @return [Integer] integer value of Enum.
     def to_i
       @value
@@ -96,28 +96,28 @@ module Inum
     def self.labels
       defined_enums.keys
     end
-    
+
     # get Enum length.
     #
     # @return [Integer] count of Enums.
     def self.length
       defined_enums.length
     end
-    
+
     # return array of Enums.
     #
     # @return [Array<Array<Symbol, Integer>>] sorted array of Enums.
     def self.to_a
       defined_enums.flatten(0).sort{|a,b| a[1] <=> b[1] }
     end
-    
+
     # return hash of Enums.
     #
     # @return [Hash<Symbol, Integer>] hash of Enums.
     def self.to_h
       defined_enums.dup
     end
-    
+
     # Parse Object to Enum.
     #
     # @param object [Object] string or symbol or integer or Inum::Base.
@@ -136,7 +136,7 @@ module Inum
           raise ArgumentError, "#{object} is nani?"
       end
     end
-    
+
     # get all values of Enum.
     #
     # @return [Array<Integer>] all values of Enum.
@@ -151,13 +151,13 @@ module Inum
     # @param value [Integer] value of Enum.(default:autoincrement for 0.)
     def self.define_enum(label, value = defined_enums.size)
       value = value.to_i
-      
+
       validate_enum_args!(label, value)
 
       defined_enums[label] = value
       self.const_set(label, new(label, value))
     end
-    
+
     # get hash of :DEFINED_ENUMS.
     def self.defined_enums
       self.const_get(:DEFINED_ENUMS)
@@ -178,16 +178,16 @@ module Inum
     def self.inherited(child)
       child.const_set(:DEFINED_ENUMS, Hash.new)
     end
-    
+
     # Validate enum args, and raise exception.
-    # 
+    #
     # @param label [Object]  label of Enum.
     # @param value [Integer] value of Enum.
     def self.validate_enum_args!(label, value)
       unless label.instance_of?(Symbol)
         raise ArgumentError, "The label(#{label}!) isn't instance of Symbol."
       end
-      
+
       if label == :DEFINED_ENUMS
         raise ArgumentError, "The label(#{label}!) is keyword."
       end
@@ -195,7 +195,7 @@ module Inum
       if defined_enums.has_key?(label)
         raise ArgumentError, "The label(#{label}!) already exists!!"
       end
-      
+
       if defined_enums.has_value?(value)
         raise ArgumentError, "The value(#{value}!) already exists!!"
       end

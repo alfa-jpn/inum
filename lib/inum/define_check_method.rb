@@ -5,13 +5,13 @@ module Inum
   #   class Fruit
   #     extend Inum::DefineCheckMethod
   #     define_check_method :type, FruitType
-  #   
+  #
   #     attr_accessor :type
   #   end
   #
   module DefineCheckMethod
     require 'inum/utils'
-    
+
     # Define compare method in class.
     #
     # @param variable_name [String]     name of variable.
