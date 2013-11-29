@@ -26,7 +26,8 @@ module Inum
       @label = label
       @value = value
 
-      @localized_enum = I18n.t(self.class.i18n_key(label))
+      @localized_enum   = I18n.t(self.class.i18n_key(label))
+      @underscore_label = Inum::Utils::underscore(label)
     end
 
     # Compare object.
@@ -81,6 +82,13 @@ module Inum
     # @return [String] localized string of Enum.
     def to_t
       @localized_enum
+    end
+
+    # Enum label to underscore string.
+    #
+    # @return [String] under_score string value(label) of Enum.
+    def to_u
+      @underscore_label
     end
 
     # Execute the yield(block) with each member of enum.

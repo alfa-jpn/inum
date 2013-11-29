@@ -123,6 +123,10 @@ describe Inum::Base do
       expect( @enum::REDBULL.to_t ).to eq('Good drink!')
     end
 
+    it 'to_u return underscore string.' do
+      expect( @enum::REDBULL.to_u ).to eq('redbull')
+    end
+
     it 'each can execute block with enum' do
       count = 0
       expect{

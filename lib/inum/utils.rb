@@ -4,8 +4,8 @@ module Inum
 
     # convert a camel cased word to a underscore word.
     #
-    # @param camel_cased_word [String] camel cased word.
-    # @return [String, Symbol] underscore word.
+    # @param camel_cased_word [String, Symbol] camel cased word.
+    # @return [String] underscore word.
     def self.underscore(camel_cased_word)
       word = camel_cased_word.to_s.dup
 
