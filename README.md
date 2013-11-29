@@ -59,6 +59,7 @@ p AnimeType::NYARUKO - 1  # => HARUHI
 AnimeType::each {|enum| p enum }
 
 ```
+
 can use Enumerable and Comparable.
 
 - more detail is [Class::Base](http://rubydoc.info/github/alfa-jpn/inum/Inum/Base)
@@ -97,6 +98,7 @@ p anime.haruhi? # => true
 to_t methods localize enum by i18n.
 default i18n key is name_space.class_name.enum_member_label.
 If change default, Override i18n_key class method.
+
 ``` ruby
 # default i18n_key.
 def self.i18n_key(label)

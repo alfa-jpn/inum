@@ -6,37 +6,37 @@ describe Inum::Base do
   it 'define_enum validate correct' do
     # correct.
     expect{
-      Class.new(Inum::Base) { define_enum :REDBULL,  0 }  
+      Class.new(Inum::Base) { define_enum :REDBULL,  0 }
       Class.new(Inum::Base) { define_enum :REDBULL,  0.to_i }
-      Class.new(Inum::Base) { 
-        define_enum :REDBULL, 0 
-        define_enum :MONSTER, 1 
+      Class.new(Inum::Base) {
+        define_enum :REDBULL, 0
+        define_enum :MONSTER, 1
       }
     }.not_to raise_error
-    
+
     # wrong name.
     expect{
-      Class.new(Inum::Base) { define_enum 1111, 0 } 
+      Class.new(Inum::Base) { define_enum 1111, 0 }
     }.to raise_error
-    
+
     # wrong value.
     expect{
-      Class.new(Inum::Base) { define_enum :REDBULL, :no_int } 
+      Class.new(Inum::Base) { define_enum :REDBULL, :no_int }
     }.to raise_error
-    
+
     # dup name.
     expect{
-      Class.new(Inum::Base) { 
-        define_enum :REDBULL, 0 
-        define_enum :REDBULL, 1 
+      Class.new(Inum::Base) {
+        define_enum :REDBULL, 0
+        define_enum :REDBULL, 1
       }
     }.to raise_error
-    
+
     # dup value.
     expect{
-      Class.new(Inum::Base) { 
-        define_enum :REDBULL,  0 
-        define_enum :REDBULL2, 0 
+      Class.new(Inum::Base) {
+        define_enum :REDBULL,  0
+        define_enum :REDBULL2, 0
       }
     }.to raise_error
   end
@@ -47,7 +47,7 @@ describe Inum::Base do
       define_enum :MONSTER
       define_enum :BURN
     end
-    
+
     expect(enum::REDBULL.to_i).to eq(0)
     expect(enum::MONSTER.to_i).to eq(1)
     expect(enum::BURN.to_i).to    eq(2)
@@ -123,6 +123,10 @@ describe Inum::Base do
       expect( @enum::REDBULL.to_t ).to eq('Good drink!')
     end
 
+    it 'to_u return underscore string.' do
+      expect( @enum::REDBULL.to_u ).to eq('redbull')
+    end
+
     it 'each can execute block with enum' do
       count = 0
       expect{
@@ -139,26 +143,26 @@ describe Inum::Base do
     end
 
     it 'labels return Array<Symbol>.' do
-      expect(@enum::labels.length).to eq(3) 
+      expect(@enum::labels.length).to eq(3)
       expect(@enum::labels.instance_of?(Array)).to     be_true
-      expect(@enum::labels[0].instance_of?(Symbol)).to be_true      
+      expect(@enum::labels[0].instance_of?(Symbol)).to be_true
     end
-    
+
     it 'length return count of enum.' do
       expect(@enum::length).to eq(3)
     end
-    
+
     it 'to_a return Array<Array<Symbol,Integer>>.' do
       expect(@enum::to_a.length).to eq(3)
       expect(@enum::to_a.instance_of?(Array)).to        be_true
       expect(@enum::to_a[0].instance_of?(Array)).to     be_true
       expect(@enum::to_a[0][0].instance_of?(Symbol)).to be_true
       expect(@enum::to_a[0][1].integer?).to             be_true
-      
+
       expect(@enum::to_a[0][0]).to eq(:REDBULL)
       (0..2).each{|i| expect(@enum::to_a[i][1]).to eq(i) }
     end
-    
+
     it 'to_h return Hash' do
       expect(@enum::to_h.instance_of?(Hash)).to be_true
       expect(@enum::to_h.eql?(@enum::DEFINED_ENUMS)).to be_true
@@ -180,11 +184,11 @@ describe Inum::Base do
     it 'parse return instance from self instance.' do
       expect( @enum::parse(@enum::REDBULL) ).to eq( @enum::REDBULL )
     end
-    
+
     it 'values return Array<Integer>.' do
-      expect(@enum::values.length).to eq(3) 
+      expect(@enum::values.length).to eq(3)
       expect(@enum::values.instance_of?(Array)).to be_true
-      expect(@enum::values[0].integer?).to         be_true      
+      expect(@enum::values[0].integer?).to         be_true
     end
   end
 end
