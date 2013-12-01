@@ -178,7 +178,7 @@ module Inum
     # @return [String] key for I18n.t method.
     # @abstract If change key from the default.
     def self.i18n_key(label)
-      Inum::Utils::underscore("#{self.class.name}::#{label}")
+      Inum::Utils::underscore("#{self.name}::#{label}")
     end
 
     # call after inherited.

@@ -54,9 +54,9 @@ describe Inum::Base do
   end
 
   it 'i18n.t called when call define_enum.' do
-    I18n.should_receive(:t).with('class.redbull')
+    I18n.should_receive(:t).with('hoge.redbull')
 
-    Class.new(Inum::Base) do
+    class Hoge < Inum::Base
       define_enum :REDBULL
     end
   end

@@ -102,7 +102,7 @@ If change default, Override i18n_key class method.
 ``` ruby
 # default i18n_key.
 def self.i18n_key(label)
-  Inum::Utils::underscore("#{self.class.name}::#{label}")
+  Inum::Utils::underscore("#{self.name}::#{label}")
 end
 ```
 
