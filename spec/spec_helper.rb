@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
-require 'inum/base'
-require 'inum/define_check_method'
+require 'inum'
 require 'inum/utils'
 require 'i18n'
 
