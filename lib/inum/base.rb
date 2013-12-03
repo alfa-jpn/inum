@@ -166,9 +166,11 @@ module Inum
       self.const_set(label, new(label, value))
     end
 
-    # get hash of :DEFINED_ENUMS.
+    # get hash of @defined_enums.
+    #
+    # @return [Hash] hash of defined enums.
     def self.defined_enums
-      self.const_get(:DEFINED_ENUMS)
+      @defined_enums
     end
 
     # get key for I18n.t method.
@@ -178,13 +180,13 @@ module Inum
     # @return [String] key for I18n.t method.
     # @abstract If change key from the default.
     def self.i18n_key(label)
-      Inum::Utils::underscore("#{self.name}::#{label}")
+      Inum::Utils::underscore("inum::#{self.name}::#{label}")
     end
 
     # call after inherited.
     # @note Define hash of :DEFINED_ENUMS in child.
     def self.inherited(child)
-      child.const_set(:DEFINED_ENUMS, Hash.new)
+      child.instance_variable_set(:@defined_enums, Hash.new)
     end
 
     # Validate enum args, and raise exception.
@@ -194,10 +196,6 @@ module Inum
     def self.validate_enum_args!(label, value)
       unless label.instance_of?(Symbol)
         raise ArgumentError, "The label(#{label}!) isn't instance of Symbol."
-      end
-
-      if label == :DEFINED_ENUMS
-        raise ArgumentError, "The label(#{label}!) is keyword."
       end
 
       if defined_enums.has_key?(label)

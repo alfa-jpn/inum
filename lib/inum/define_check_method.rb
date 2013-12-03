@@ -18,9 +18,9 @@ module Inum
     # @param enum_class    [Inum::Base] class of extended Enum::EnumBase.
     def define_check_method(variable_name, enum_class)
       self.class_eval do
-        enum_class::DEFINED_ENUMS.each_key do |enum_name|
-          define_method("#{Inum::Utils::underscore(enum_name)}?") do
-            enum_class::parse(enum_name).eql?(send(variable_name))
+        enum_class::each do |enum|
+          define_method("#{enum.to_u}?") do
+            enum.eql?(send(variable_name))
           end
         end
       end
