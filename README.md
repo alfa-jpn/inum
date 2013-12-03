@@ -43,7 +43,7 @@ How to use Enum(Inum).
 ``` ruby
 p AnimeType::EVANGELION       # => EVANGELION
 p AnimeType::EVANGELION.to_i  # => 0
-p AnimeType::EVANGELION.to_t  # => エヴァンゲリオン (i18n find `anime_type.evangelion`.)
+p AnimeType::EVANGELION.to_t  # => エヴァンゲリオン (i18n find `inum.anime_type.evangelion`.)
 
 # parse object to instance of AnimeType.
 # object can use class of Symbol or String or Integer or Self.
@@ -96,14 +96,25 @@ p anime.haruhi? # => true
 
 ### Localize(i18n)
 to_t methods localize enum by i18n.
-default i18n key is name_space.class_name.enum_member_label.
+default i18n key is inum.{name_space}.{class_name}.{enum_member_label}.
 If change default, Override i18n_key class method.
 
 ``` ruby
 # default i18n_key.
 def self.i18n_key(label)
-  Inum::Utils::underscore("#{self.name}::#{label}")
+  Inum::Utils::underscore("inum::#{self.name}::#{label}")
 end
+```
+
+example
+
+``` yaml
+ja:
+  inum:
+    anime_type:
+      evangelion: 'エヴァンゲリオン'
+      haruhi:     'ハルヒ'
+      nyaruko:    '這いよれ！ニャル子さん'
 ```
 
 ## API DOCUMENT
