@@ -54,7 +54,7 @@ describe Inum::Base do
   end
 
   it 'i18n.t called when call define_enum.' do
-    I18n.should_receive(:t).with('hoge.redbull')
+    I18n.should_receive(:t).with('inum.hoge.redbull')
 
     class Hoge < Inum::Base
       define_enum :REDBULL
@@ -79,7 +79,12 @@ describe Inum::Base do
       @enum2 = Class.new(Inum::Base) do
         define_enum :REDBULL,  0
       end
-      expect( @enum::DEFINED_ENUMS.equal?(@enum2::DEFINED_ENUMS) ).to be_false
+
+      defined_enum_inst  = @enum.instance_variable_get(:@defined_enums)
+      defined_enum_inst2 = @enum2.instance_variable_get(:@defined_enums)
+
+      expect( defined_enum_inst.eql?(defined_enum_inst2) ).to be_false
+      expect( defined_enum_inst.equal?(defined_enum_inst2) ).to be_false
     end
 
     it 'A enum instance is equal instance.' do
@@ -164,9 +169,12 @@ describe Inum::Base do
     end
 
     it 'to_h return Hash' do
+      defined_enum_inst  = @enum.instance_variable_get(:@defined_enums)
+
       expect(@enum::to_h.instance_of?(Hash)).to be_true
-      expect(@enum::to_h.eql?(@enum::DEFINED_ENUMS)).to be_true
-      expect(@enum::to_h.equal?(@enum::DEFINED_ENUMS)).to be_false
+
+      expect(@enum::to_h.eql?(defined_enum_inst)).to be_true
+      expect(@enum::to_h.equal?(defined_enum_inst)).to be_false
     end
 
     it 'parse return instance from string.' do
