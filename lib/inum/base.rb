@@ -26,7 +26,6 @@ module Inum
       @label = label
       @value = value
 
-      @localized_enum   = I18n.t(self.class.i18n_key(label))
       @underscore_label = Inum::Utils::underscore(label)
     end
 
@@ -81,7 +80,7 @@ module Inum
     #
     # @return [String] localized string of Enum.
     def to_t
-      @localized_enum
+      I18n.t(self.class.i18n_key(@label))
     end
 
     # Enum label to underscore string.
