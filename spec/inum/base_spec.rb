@@ -53,14 +53,6 @@ describe Inum::Base do
     expect(enum::BURN.to_i).to    eq(2)
   end
 
-  it 'i18n.t called when call define_enum.' do
-    I18n.should_receive(:t).with('inum.hoge.redbull')
-
-    class Hoge < Inum::Base
-      define_enum :REDBULL
-    end
-  end
-
   context 'define class of extended Inum::Base,' do
     before(:each) do
       I18n.stub(:t).and_return('Good drink!')
