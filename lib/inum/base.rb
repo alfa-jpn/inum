@@ -79,16 +79,18 @@ module Inum
     # @note find default `Namespace.Classname.EnumMember`
     #
     # @return [String] localized string of Enum.
-    def to_t
+    def translate
       I18n.t(self.class.i18n_key(@label))
     end
+    alias_method :to_t, :translate
 
     # Enum label to underscore string.
     #
     # @return [String] under_score string value(label) of Enum.
-    def to_u
+    def underscore
       @underscore_label
     end
+    alias_method :to_u, :underscore
 
     # Execute the yield(block) with each member of enum.
     #

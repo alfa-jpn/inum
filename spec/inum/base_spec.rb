@@ -116,11 +116,13 @@ describe Inum::Base do
       expect( @enum::MONSTER.to_s ).to eq('MONSTER')
     end
 
-    it 'to_t return localized string.' do
+    it 'translate and to_t return localized string.' do
+      expect( @enum::REDBULL.translate ).to eq('Good drink!')
       expect( @enum::REDBULL.to_t ).to eq('Good drink!')
     end
 
-    it 'to_u return underscore string.' do
+    it 'underscore and to_u return underscore string.' do
+      expect( @enum::REDBULL.underscore ).to eq('redbull')
       expect( @enum::REDBULL.to_u ).to eq('redbull')
     end
 

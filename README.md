@@ -41,9 +41,9 @@ define_enum :EVANGELION  # => value will auto-increment.
 How to use Enum(Inum).
 
 ``` ruby
-p AnimeType::EVANGELION       # => EVANGELION
-p AnimeType::EVANGELION.to_i  # => 0
-p AnimeType::EVANGELION.to_t  # => エヴァンゲリオン (i18n find `inum.anime_type.evangelion`.)
+p AnimeType::EVANGELION            # => EVANGELION
+p AnimeType::EVANGELION.to_i       # => 0
+p AnimeType::EVANGELION.translate  # => エヴァンゲリオン (i18n find `inum.anime_type.evangelion`.)
 
 # parse object to instance of AnimeType.
 # object can use class of Symbol or String or Integer or Self.
