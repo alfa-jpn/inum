@@ -127,11 +127,11 @@ module Inum
       defined_enums.dup
     end
 
-    # Parse Object to Enum.
+    # Parse Object to Enum.(unsafe:An exception may occur.)
     #
     # @param object [Object] string or symbol or integer or Inum::Base.
-    # @return [Inum::Base] instance of Inum::Base.
-    def self.parse(object)
+    # @return [Inum::Base] instance of Inum::Base. or raise Exception.
+    def self.parse!(object)
       case object
         when String
           self.const_get(object)
@@ -144,6 +144,26 @@ module Inum
         else
           raise ArgumentError, "#{object} is nani?"
       end
+    end
+
+    # Parse Object to Enum.
+    #
+    # @param object [Object] string or symbol or integer or Inum::Base.
+    # @return [Inum::Base] instance of Inum::Base. or nil.
+    def self.parse(object)
+      case object
+        when String
+          return nil unless labels.include?(object.to_sym)
+        when Symbol
+          return nil unless labels.include?(object)
+        when Integer
+          return nil unless values.include?(object)
+        when self
+          # do nothing.
+        else
+          return nil
+      end
+      parse!(object)
     end
 
     # get all values of Enum.

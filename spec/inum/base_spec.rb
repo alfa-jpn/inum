@@ -187,6 +187,14 @@ describe Inum::Base do
       expect( @enum::parse(@enum::REDBULL) ).to eq( @enum::REDBULL )
     end
 
+    it 'parse return nil from a unknown value.' do
+      expect( @enum::parse('hoge') ).to eq( nil )
+    end
+
+    it 'parse! raise exception from a unknown value.' do
+      expect{ @enum::parse!('hoge') }.to raise_error( NameError )
+    end
+
     it 'values return Array<Integer>.' do
       expect(@enum::values.length).to eq(3)
       expect(@enum::values.instance_of?(Array)).to be_true
