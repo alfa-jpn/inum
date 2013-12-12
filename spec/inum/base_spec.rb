@@ -84,9 +84,11 @@ describe Inum::Base do
     end
 
     it '<=> return a correct value.' do
-      expect( (@enum::REDBULL <=> 1) < 0 ).to be_true
+      expect( (@enum::REDBULL <=> 1)  < 0 ).to be_true
       expect( (@enum::REDBULL <=> 0) == 0 ).to be_true
-      expect( (@enum::MONSTER <=> 0) > 0 ).to be_true
+      expect( (@enum::MONSTER <=> 0)  > 0 ).to be_true
+
+      expect( @enum::MONSTER <=> 'a' ).to be_nil
     end
 
     it '+ return a correct Inum.' do

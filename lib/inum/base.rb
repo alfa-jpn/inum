@@ -34,7 +34,12 @@ module Inum
     # @param object [Object] parsable object.
     # @return [Integer] same normal <=>.
     def <=> (object)
-      @value <=> self.class.parse(object).to_i
+      other = self.class.parse(object)
+      if other.nil?
+        nil
+      else
+        @value <=> other.to_i
+      end
     end
 
     # plus object.
