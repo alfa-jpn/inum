@@ -195,11 +195,11 @@ describe Inum::Base do
     end
 
     it 'translate and t methods return localized string.' do
-      I18n.should_receive(:t).with('inum.anime.nourin').and_return('のうりん')
-      I18n.should_receive(:t).with('inum.anime.kmb').and_return('キルミーベイベー')
+      I18n.should_receive(:t).with('inum.anime.nourin').and_return('NO-RIN!')
+      I18n.should_receive(:t).with('inum.anime.kmb').and_return('KIRUMI-BEIBE-')
 
-      expect(Anime::NOURIN.t).to      eq('のうりん')
-      expect(Anime::KMB.translate).to eq('キルミーベイベー')
+      expect(Anime::NOURIN.t).to      eq('NO-RIN!')
+      expect(Anime::KMB.translate).to eq('KIRUMI-BEIBE-')
     end
 
     it 'underscore method return underscore string.' do
