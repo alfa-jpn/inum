@@ -7,9 +7,9 @@ module Inum
   # @abstract Inum class should be a inheritance of Inum::Base.
   # @example
   #   class FruitType < Inum::Base
-  #     define_enum :APPLE,  0
-  #     define_enum :BANANA, 1
-  #     define_enum :ORANGE, 2
+  #     define :APPLE,  0
+  #     define :BANANA, 1
+  #     define :ORANGE, 2
   #   end
   class Base
     extend Enumerable
@@ -66,16 +66,16 @@ module Inum
       self.equal?(self.class.parse(object))
     end
 
-    # Enum to Integer.
+    # Label of Enum.
     #
-    # @return [Integer] integer value of Enum.
-    def to_i
-      @value
+    # @return [Symbol] Label of Enum.
+    def label
+      @label
     end
 
     # Enum to String.
     #
-    # @return [String] string value(label) of Enum.
+    # @return [String] Label(String).
     def to_s
       @label.to_s
     end
@@ -87,7 +87,7 @@ module Inum
     def translate
       I18n.t(self.class.i18n_key(@label))
     end
-    alias_method :to_t, :translate
+    alias_method :t, :translate
 
     # Enum label to underscore string.
     #
@@ -95,41 +95,48 @@ module Inum
     def underscore
       @underscore_label
     end
-    alias_method :to_u, :underscore
+
+    # Value of Enum.
+    #
+    # @return [Integer] Value of Enum.
+    def value
+      @value
+    end
+    alias_method :to_i, :value
 
     # Execute the yield(block) with each member of enum.
     #
-    # @yield [enum] instance of enum.
-    def self.each
-      defined_enums.each_key {|key| yield parse(key.to_s)}
+    # @param &block [proc{|enum| .. }] execute the block.
+    def self.each(&block)
+      enums.each(&block)
     end
 
     # get all labels of Enum.
     #
     # @return [Array<Symbol>] all labels of Enum.
     def self.labels
-      defined_enums.keys
+      enum_format.keys
     end
 
     # get Enum length.
     #
     # @return [Integer] count of Enums.
     def self.length
-      defined_enums.length
+      enum_format.length
     end
 
     # return array of Enums.
     #
-    # @return [Array<Array<Symbol, Integer>>] sorted array of Enums.
+    # @return [Array<Inum>] sorted array of Enums.
     def self.to_a
-      defined_enums.flatten(0).sort{|a,b| a[1] <=> b[1] }
+      enums.dup
     end
 
     # return hash of Enums.
     #
     # @return [Hash<Symbol, Integer>] hash of Enums.
     def self.to_h
-      defined_enums.dup
+      enum_format.dup
     end
 
     # Parse Object to Enum.(unsafe:An exception may occur.)
@@ -143,7 +150,7 @@ module Inum
         when Symbol
           parse object.to_s
         when Integer
-          parse self.defined_enums.key(object).to_s
+          parse self.enum_format.key(object).to_s
         when self
           object
         else
@@ -175,7 +182,7 @@ module Inum
     #
     # @return [Array<Integer>] all values of Enum.
     def self.values
-      defined_enums.values
+      enum_format.values
     end
 
     private
@@ -183,20 +190,29 @@ module Inum
     #
     # @param label [Symbol]  label of Enum.
     # @param value [Integer] value of Enum.(default:autoincrement for 0.)
-    def self.define_enum(label, value = defined_enums.size)
+    def self.define(label, value = enum_format.size)
       value = value.to_i
-
       validate_enum_args!(label, value)
 
-      defined_enums[label] = value
-      self.const_set(label, new(label, value))
+      enum = new(label, value)
+      enum_format[label] = value
+
+      enums.push(enum)
+      self.const_set(label, enum)
     end
 
-    # get hash of @defined_enums.
+    # get hash of @enum_format.
     #
-    # @return [Hash] hash of defined enums.
-    def self.defined_enums
-      @defined_enums
+    # @return [Hash] format(hash) of enum.
+    def self.enum_format
+      @enum_format
+    end
+
+    # get array of @enums.
+    #
+    # @return [Array] array of defined enums.
+    def self.enums
+      @enums
     end
 
     # get key for I18n.t method.
@@ -210,9 +226,10 @@ module Inum
     end
 
     # call after inherited.
-    # @note Define hash of :DEFINED_ENUMS in child.
+    # @note Define hash of :enum_format in child.
     def self.inherited(child)
-      child.instance_variable_set(:@defined_enums, Hash.new)
+      child.instance_variable_set(:@enum_format, Hash.new)
+      child.instance_variable_set(:@enums, Array.new)
     end
 
     # Validate enum args, and raise exception.
@@ -224,11 +241,11 @@ module Inum
         raise ArgumentError, "The label(#{label}!) isn't instance of Symbol."
       end
 
-      if defined_enums.has_key?(label)
+      if labels.include?(label)
         raise ArgumentError, "The label(#{label}!) already exists!!"
       end
 
-      if defined_enums.has_value?(value)
+      if values.include?(value)
         raise ArgumentError, "The value(#{value}!) already exists!!"
       end
     end

@@ -16,4 +16,7 @@ test/tmp
 test/version_tmp
 tmp
 vendor/
+
+# IDE Projects files.
 nbproject/
+.project

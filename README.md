@@ -25,37 +25,35 @@ For example create enum(inum) of Japanese Anime.
 
 ``` ruby
 class AnimeType < Inum::Base
-  define_enum :EVANGELION, 0
-  define_enum :HARUHI,     1
-  define_enum :NYARUKO,    2
+  define :EVANGELION, 0
+  define :HARUHI,     1
+  define :NYARUKO,    2
 end
 ```
 
 If value(integer) is omitted, value(integer) is auto-incremented.
 
 ``` ruby
-define_enum :EVANGELION  # => value will auto-increment.
+define :EVANGELION  # => value will auto-increment.
 ```
 
 ### Use Enum(Inum)
 How to use Enum(Inum).
 
 ``` ruby
-p AnimeType::EVANGELION            # => EVANGELION
-p AnimeType::EVANGELION.to_i       # => 0
+p AnimeType::EVANGELION.label      # => :EVANGELION (if use to_s, return "EVANGELION")
+p AnimeType::EVANGELION.value      # => 0 (can use to_i.)
 p AnimeType::EVANGELION.translate  # => エヴァンゲリオン (i18n find `inum.anime_type.evangelion`.)
 
 # parse object to instance of AnimeType.
 # object can use class of Symbol or String or Integer or Self.
-type = AnimeType::parse(0)
-p type.equal?(AnimeType::EVANGELION) # => true (member of Enum is singleton.)
-
+type = AnimeType.parse(0)
 p AnimeType::HARUHI.eql?('HARUHI')   # => true (eql? can compare all parsable object.)
 
 p AnimeType::HARUHI + 1   # => NYARUKO
 p AnimeType::NYARUKO - 1  # => HARUHI
 
-# can use each method.
+# each method.
 AnimeType::each {|enum| p enum }
 
 ```
@@ -64,33 +62,33 @@ can use Enumerable and Comparable.
 
 - more detail is [Class::Base](http://rubydoc.info/github/alfa-jpn/inum/Inum/Base)
 
-### Use define\_check\_method
-define\_check\_method can extend your class.
+### if use ActiveRecord, can use bind\_inum
 
 ``` ruby
-class Anime
-  extend Inum::DefineCheckMethod
-  
-  attr_accessor :type
+class Anime < ActiveRecord::Base
+  bind_inum :column => :type, :class => AnimeType
+end
 
-  define_check_method :type, AnimeType
+# if set prefix.
+class Anime < ActiveRecord::Base
+  bind_inum :column => :type, :class => AnimeType, :prefix => nil # remove prefix, when prefix is nil.
 end
 
 ```
 
-define\_check\_method generates methods for type confirmation. 
+bind\_enum generates useful methods and validation.
 
 ``` ruby
-anime = Anime.new
-anime.type = AnimeType::NYARUKO
+anime = Anime.new(type: AnimeType::NYARUKO)
+p anime.type.t # => '這いよれ！ニャル子さん' t is aliased translate.
 
-p anime.evangelion? # => false
-p anime.nyaruko?    # => true
+p anime.type_evangelion? # => false
+p anime.type_nyaruko?    # => true
 
 
 # type can use all parsable object.
 anime.type = 1
-p anime.haruhi? # => true
+p anime.type_haruhi? # => true
 
 ```
 
