@@ -15,8 +15,6 @@ module Inum
     extend Enumerable
     include Comparable
 
-    private_class_method :new
-
     # initialize Inum::Base with value.
     # @note The instance of Enum Member is singleton.
     #
@@ -185,7 +183,7 @@ module Inum
       enum_format.values
     end
 
-    private
+
     # Define Enum in called class.
     #
     # @param label [Symbol]  label of Enum.
@@ -202,6 +200,7 @@ module Inum
     end
 
     # get hash of @enum_format.
+    # @private
     #
     # @return [Hash] format(hash) of enum.
     def self.enum_format
@@ -209,6 +208,7 @@ module Inum
     end
 
     # get array of @enums.
+    # @private
     #
     # @return [Array] array of defined enums.
     def self.enums
@@ -226,6 +226,7 @@ module Inum
     end
 
     # call after inherited.
+    #
     # @note Define hash of :enum_format in child.
     def self.inherited(child)
       child.instance_variable_set(:@enum_format, Hash.new)
@@ -249,5 +250,7 @@ module Inum
         raise ArgumentError, "The value(#{value}!) already exists!!"
       end
     end
+
+    private_class_method :new, :define, :validate_enum_args!
   end
 end
