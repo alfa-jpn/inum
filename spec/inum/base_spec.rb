@@ -3,204 +3,213 @@ require 'spec_helper'
 
 describe Inum::Base do
 
-  it 'define_enum validate correct' do
-    # correct.
-    expect{
-      Class.new(Inum::Base) { define_enum :REDBULL,  0 }
-      Class.new(Inum::Base) { define_enum :REDBULL,  0.to_i }
-      Class.new(Inum::Base) {
-        define_enum :REDBULL, 0
-        define_enum :MONSTER, 1
-      }
-    }.not_to raise_error
-
-    # wrong name.
-    expect{
-      Class.new(Inum::Base) { define_enum 1111, 0 }
-    }.to raise_error
-
-    # wrong value.
-    expect{
-      Class.new(Inum::Base) { define_enum :REDBULL, :no_int }
-    }.to raise_error
-
-    # dup name.
-    expect{
-      Class.new(Inum::Base) {
-        define_enum :REDBULL, 0
-        define_enum :REDBULL, 1
-      }
-    }.to raise_error
-
-    # dup value.
-    expect{
-      Class.new(Inum::Base) {
-        define_enum :REDBULL,  0
-        define_enum :REDBULL2, 0
-      }
-    }.to raise_error
-  end
-
-  it 'define_enum called without value, value is autoincrement.' do
-    enum = Class.new(Inum::Base) do
-      define_enum :REDBULL
-      define_enum :MONSTER
-      define_enum :BURN
+  context 'When define enum,' do
+    it 'Correct definition be validation passed.' do
+      expect{
+        Class.new(Inum::Base) { define :REDBULL,  0 }
+        Class.new(Inum::Base) {
+          define :REDBULL, 0
+          define :MONSTER, 1
+        }
+      }.not_to raise_error
     end
 
-    expect(enum::REDBULL.to_i).to eq(0)
-    expect(enum::MONSTER.to_i).to eq(1)
-    expect(enum::BURN.to_i).to    eq(2)
+    it 'Incorrect definition be validation failed.' do
+      # wrong name.
+      expect{
+        Class.new(Inum::Base) { define 1111, 0 }
+      }.to raise_error
+
+      # wrong value.
+      expect{
+        Class.new(Inum::Base) { define :REDBULL, :no_int }
+      }.to raise_error
+
+      # dup name.
+      expect{
+        Class.new(Inum::Base) {
+          define :REDBULL, 0
+          define :REDBULL, 1
+        }
+      }.to raise_error
+
+      # dup value.
+      expect{
+        Class.new(Inum::Base) {
+          define :REDBULL, 0
+          define :MONSTER, 0
+        }
+      }.to raise_error
+    end
+
+    it 'Autoincrement value when without default value.' do
+      enum = Class.new(Inum::Base) do
+        define :REDBULL
+        define :MONSTER
+        define :BURN
+      end
+
+      expect(enum::REDBULL.value).to eq(0)
+      expect(enum::MONSTER.value).to eq(1)
+      expect(enum::BURN.value).to    eq(2)
+    end
+
+    it 'Instances of enum are different each definition.' do
+      first  = Class.new(Inum::Base){ define :REDBULL }
+      second = Class.new(Inum::Base){ define :MONSTER }
+
+      first_enum_format  = first.instance_variable_get(:@enum_format)
+      second_enum_format = second.instance_variable_get(:@enum_format)
+
+      first_enums  = first.instance_variable_get(:@enums)
+      second_enums = second.instance_variable_get(:@enums)
+
+      expect(first_enum_format.eql?(second_enum_format)).to  be_false
+      expect(first_enum_format.equal?(second_enum_format)).to be_false
+
+      expect(first_enums.eql?(second_enums)).to  be_false
+      expect(first_enums.equal?(second_enums)).to be_false
+    end
   end
 
-  context 'define class of extended Inum::Base,' do
-    before(:each) do
-      I18n.stub(:t).and_return('Good drink!')
-      @enum = Class.new(Inum::Base) do
-        define_enum :REDBULL,  0
-        define_enum :MONSTER,  1
-        define_enum :BURN,     2
+
+  describe 'Defined Inum::Base' do
+    before :each do
+      class Anime < Inum::Base
+        define :NYARUKO,   0
+        define :MUROMISAN, 1
+        define :NOURIN,    2
+        define :KMB,       4
       end
     end
 
-    it 'can not call new.' do
-      expect{ @enum.new(1) }.to raise_error
+    after :each do
+      Object.class_eval{ remove_const :Anime }
     end
 
-    it 'DEFINED_ENUM is different instance.' do
-      @enum2 = Class.new(Inum::Base) do
-        define_enum :REDBULL,  0
-      end
-
-      defined_enum_inst  = @enum.instance_variable_get(:@defined_enums)
-      defined_enum_inst2 = @enum2.instance_variable_get(:@defined_enums)
-
-      expect( defined_enum_inst.eql?(defined_enum_inst2) ).to be_false
-      expect( defined_enum_inst.equal?(defined_enum_inst2) ).to be_false
+    it 'Can not create instance.(Singleton)' do
+      expect{ Anime.new(:NICONICO, 2525) }.to raise_error
     end
 
-    it 'A enum instance is equal instance.' do
-      expect( @enum::BURN.equal?(@enum::BURN )).to be_true
+    it 'The instance of enum is equal.' do
+      expect(Anime::NYARUKO.equal?(Anime.parse!('NYARUKO'))).to be_true
     end
 
-    it '<=> return a correct value.' do
-      expect( (@enum::REDBULL <=> 1)  < 0 ).to be_true
-      expect( (@enum::REDBULL <=> 0) == 0 ).to be_true
-      expect( (@enum::MONSTER <=> 0)  > 0 ).to be_true
+    it '<=> method return a correct value.' do
+      expect((Anime::MUROMISAN <=> 0)  > 0 ).to be_true
+      expect((Anime::MUROMISAN <=> 1) == 0 ).to be_true
+      expect((Anime::MUROMISAN <=> 2)  < 0 ).to be_true
 
-      expect( @enum::MONSTER <=> 'a' ).to be_nil
+      expect(Anime::NYARUKO <=> 'Value can not compare.').to be_nil
     end
 
-    it '+ return a correct Inum.' do
-      expect(@enum::REDBULL + 1).to eq(@enum::MONSTER)
-      expect(@enum::REDBULL + @enum::MONSTER).to eq(@enum::MONSTER)
+    it '+ method return a correct Inum.' do
+      expect(Anime::NYARUKO + 1).to eq(Anime::MUROMISAN)
     end
 
-    it '- return a correct Inum.' do
-      expect(@enum::BURN - 1).to eq(@enum::MONSTER)
-      expect(@enum::BURN - @enum::MONSTER).to eq(@enum::MONSTER)
+    it '- method return a correct Inum.' do
+      expect(Anime::NOURIN - 1).to eq(Anime::MUROMISAN)
     end
 
     it 'Comparable module enable.' do
-      expect(@enum::REDBULL.between?(0,1)).to be_true
+      expect(Anime::MUROMISAN.between?(0,2)).to be_true
     end
 
-    it 'eql? return a correct result.' do
-      expect( @enum::REDBULL.eql?(0) ).to be_true
-      expect( @enum::REDBULL.eql?(1) ).to be_false
-    end
-
-    it 'to_i return integer.' do
-      expect( @enum::REDBULL.to_i ).to eq(0)
-    end
-
-    it 'to_s return string.' do
-      expect( @enum::MONSTER.to_s ).to eq('MONSTER')
-    end
-
-    it 'translate and to_t return localized string.' do
-      expect( @enum::REDBULL.translate ).to eq('Good drink!')
-      expect( @enum::REDBULL.to_t ).to eq('Good drink!')
-    end
-
-    it 'underscore and to_u return underscore string.' do
-      expect( @enum::REDBULL.underscore ).to eq('redbull')
-      expect( @enum::REDBULL.to_u ).to eq('redbull')
-    end
-
-    it 'each can execute block with enum' do
+    it 'each method can execute block with enum' do
       count = 0
       expect{
-        @enum::each do |enum|
-          expect(enum.instance_of?(@enum)).to be_true
+        Anime.each do |enum|
+          expect(enum.instance_of?(Anime)).to be_true
           count += 1
         end
-      }.to change{count}.by(3)
+      }.to change{count}.by(Anime.length)
     end
 
     it 'Enumerable module enable.' do
-      expect(@enum::count).to eq(3)
-      expect(@enum::include?(@enum::REDBULL)).to be_true
+      expect(Anime.count).to eq(Anime.length)
+      expect(Anime.include?(Anime::NOURIN)).to be_true
     end
 
-    it 'labels return Array<Symbol>.' do
-      expect(@enum::labels.length).to eq(3)
-      expect(@enum::labels.instance_of?(Array)).to     be_true
-      expect(@enum::labels[0].instance_of?(Symbol)).to be_true
+    it 'eql? method return a correct result.' do
+      expect(Anime::KMB.eql?(0) ).to be_false
+      expect(Anime::KMB.eql?(4) ).to be_true
+    end
+
+    it 'labels method return Array<Symbol>.' do
+      expect(Anime.labels.length).to eq(Anime.length)
+      expect(Anime.labels.instance_of?(Array)).to     be_true
+      expect(Anime.labels[0].instance_of?(Symbol)).to be_true
     end
 
     it 'length return count of enum.' do
-      expect(@enum::length).to eq(3)
+      expect(Anime.length).to eq(4)
     end
 
-    it 'to_a return Array<Array<Symbol,Integer>>.' do
-      expect(@enum::to_a.length).to eq(3)
-      expect(@enum::to_a.instance_of?(Array)).to        be_true
-      expect(@enum::to_a[0].instance_of?(Array)).to     be_true
-      expect(@enum::to_a[0][0].instance_of?(Symbol)).to be_true
-      expect(@enum::to_a[0][1].integer?).to             be_true
+    context 'Parse method' do
+      it 'Parsable string.' do
+        expect(Anime.parse('NOURIN')).to eq(Anime::NOURIN)
+      end
 
-      expect(@enum::to_a[0][0]).to eq(:REDBULL)
-      (0..2).each{|i| expect(@enum::to_a[i][1]).to eq(i) }
+      it 'Parsable integer.' do
+        expect(Anime.parse(1)).to eq(Anime::MUROMISAN)
+      end
+
+      it 'Parsable symbol.' do
+        expect(Anime.parse(:KMB)).to eq(Anime::KMB)
+      end
+
+      it 'Parsable self instance.' do
+        expect(Anime.parse(Anime::NYARUKO)).to eq(Anime::NYARUKO)
+      end
+
+      it 'return nil for a unknown value.' do
+        expect(Anime.parse('Nothing') ).to eq(nil)
+      end
+
+      it 'parse! method raise exception for a unknown value.' do
+        expect{Anime.parse!('Nothing') }.to raise_error(NameError)
+      end
     end
 
-    it 'to_h return Hash' do
-      defined_enum_inst  = @enum.instance_variable_get(:@defined_enums)
+    it 'to_a method return Array<Enum>.' do
+      enums = Anime.instance_variable_get(:@enums)
 
-      expect(@enum::to_h.instance_of?(Hash)).to be_true
-
-      expect(@enum::to_h.eql?(defined_enum_inst)).to be_true
-      expect(@enum::to_h.equal?(defined_enum_inst)).to be_false
+      expect(Anime.to_a.eql?(enums)).to   be_true
+      expect(Anime.to_a.equal?(enums)).to be_false
     end
 
-    it 'parse return instance from string.' do
-      expect( @enum::parse('REDBULL') ).to eq( @enum::REDBULL )
+    it 'to_h method return Hash' do
+      enum_format = Anime.instance_variable_get(:@enum_format)
+
+      expect(Anime.to_h.eql?(enum_format)).to   be_true
+      expect(Anime.to_h.equal?(enum_format)).to be_false
     end
 
-    it 'parse return instance from integer.' do
-      expect( @enum::parse(1) ).to eq( @enum::MONSTER )
+    it 'to_i and value methods return integer.' do
+      expect(Anime::KMB.to_i).to  eq(4)
+      expect(Anime::KMB.value).to eq(4)
     end
 
-    it 'parse return instance from symbol.' do
-      expect( @enum::parse(:BURN) ).to eq( @enum::BURN )
+    it 'to_s method return string.' do
+      expect(Anime::NOURIN.to_s ).to eq('NOURIN')
     end
 
-    it 'parse return instance from self instance.' do
-      expect( @enum::parse(@enum::REDBULL) ).to eq( @enum::REDBULL )
+    it 'translate and t methods return localized string.' do
+      I18n.should_receive(:t).with('inum.anime.nourin').and_return('NO-RIN!')
+      I18n.should_receive(:t).with('inum.anime.kmb').and_return('KIRUMI-BEIBE-')
+
+      expect(Anime::NOURIN.t).to      eq('NO-RIN!')
+      expect(Anime::KMB.translate).to eq('KIRUMI-BEIBE-')
     end
 
-    it 'parse return nil from a unknown value.' do
-      expect( @enum::parse('hoge') ).to eq( nil )
+    it 'underscore method return underscore string.' do
+      expect(Anime::NYARUKO.underscore).to eq('nyaruko')
     end
 
-    it 'parse! raise exception from a unknown value.' do
-      expect{ @enum::parse!('hoge') }.to raise_error( NameError )
-    end
-
-    it 'values return Array<Integer>.' do
-      expect(@enum::values.length).to eq(3)
-      expect(@enum::values.instance_of?(Array)).to be_true
-      expect(@enum::values[0].integer?).to         be_true
+    it 'values method return Array<integer>.' do
+      expect(Anime.values.length).to eq(Anime.length)
+      expect(Anime.values.instance_of?(Array)).to be_true
+      expect(Anime.values[0].integer?).to         be_true
     end
   end
 end
