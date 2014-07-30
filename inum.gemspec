@@ -18,12 +18,15 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.3"
+  spec.required_ruby_version = ">= 1.9.3"
+
+  spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rspec", ">= 3.0.0"
   spec.add_development_dependency "yard"
   spec.add_development_dependency "activerecord"
   spec.add_development_dependency "sqlite3"
 
-  spec.add_dependency "i18n", "~> 0.6.5"
+  spec.add_dependency "i18n"
+  spec.add_dependency "activesupport"
 end

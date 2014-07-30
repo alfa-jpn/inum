@@ -9,44 +9,32 @@ module Inum
   module ActiveRecordMixin
     # Define compare method in class.
     #
-    # @param options [Hash] option
-    # @option options [Symbol]    :column     Binding column.          (require)
-    # @option options [Inum:Base] :class      Binding enum.            (require)
-    # @option options [Symbol]    :prefix     Prefix.                  (default: "{option[:column]}_")
-    # @option options [Bool]      :validation Enable validation        (default: true)
-    # @option options [Bool]      :allow_nil  Allow nil when validate. (default: false)
-    def bind_inum(options)
-      opts = {
-        allow_nil:  false,
-        prefix:     options[:column],
-        validation: true,
-      }.merge(options)
-      opts[:prefix] = (opts[:prefix].nil?)? '' : "#{opts[:prefix]}_"
+    # @param column     [Symbol]      Binding column name.
+    # @param enum_class [Inum::Base]  Binding Enum.
+    # @param options    [Hash]        option
+    # @option options [Symbol]    :prefix     Prefix. (default: column)
+    def bind_inum(column, enum_class, options = {})
+      options = { prefix: column }.merge(options)
+      options[:prefix] = options[:prefix] ? "#{options[:prefix]}_" : ''
 
       self.class_eval do
-        if opts[:validation]
-          validates opts[:column], {
-            allow_nil: opts[:allow_nil],
-            inclusion: {in: opts[:class].to_a},
-          }
+        define_method(column) do
+          enum_class.parse(read_attribute(column))
         end
 
-        define_method("#{opts[:column]}") do
-          opts[:class].parse(read_attribute(opts[:column]))
-        end
-
-        define_method("#{opts[:column]}=") do |value|
-          enum  = opts[:class].parse(value)
-          if enum
-            write_attribute(opts[:column], enum.to_i)
-          else
-            write_attribute(opts[:column], nil)
+        define_method("#{column}=") do |value|
+          enum_class.parse(value).tap do |enum|
+            if enum
+              write_attribute(column, enum.to_i)
+            else
+              write_attribute(column, nil)
+            end
           end
         end
 
-        opts[:class].each do |enum|
-          define_method("#{opts[:prefix]}#{enum.underscore}?") do
-            enum.eql?(send(opts[:column]))
+        enum_class.each do |enum|
+          define_method("#{options[:prefix]}#{enum.to_s.underscore}?") do
+            enum.eql?(read_attribute(column))
           end
         end
       end

@@ -1,6 +1,6 @@
 module Inum
+  require 'active_support/inflector'
   require 'i18n'
-  require 'inum/utils'
 
   # InumBase class.
   #
@@ -21,10 +21,10 @@ module Inum
     # @param label [Symbol]  label of Enum.
     # @param value [Integer] value of Enum.
     def initialize(label, value)
-      @label = label
-      @value = value
-
-      @underscore_label = Inum::Utils::underscore(label)
+      @label        = label
+      @label_string = label.to_s
+      @value        = value
+      @i18n_key     = ActiveSupport::Inflector.underscore("#{self.class.name}::#{label}").gsub('/', '.')
     end
 
     # Compare object.
@@ -32,11 +32,10 @@ module Inum
     # @param object [Object] parsable object.
     # @return [Integer] same normal <=>.
     def <=> (object)
-      other = self.class.parse(object)
-      if other.nil?
-        nil
-      else
+      if other = self.class.parse(object)
         @value <=> other.to_i
+      else
+        nil
       end
     end
 
@@ -75,7 +74,7 @@ module Inum
     #
     # @return [String] Label(String).
     def to_s
-      @label.to_s
+      @label_string
     end
 
     # Translate Enum to localized string.(use i18n)
@@ -83,16 +82,9 @@ module Inum
     #
     # @return [String] localized string of Enum.
     def translate
-      I18n.t(self.class.i18n_key(@label))
+      I18n.t(@i18n_key)
     end
     alias_method :t, :translate
-
-    # Enum label to underscore string.
-    #
-    # @return [String] under_score string value(label) of Enum.
-    def underscore
-      @underscore_label
-    end
 
     # Value of Enum.
     #
@@ -102,152 +94,128 @@ module Inum
     end
     alias_method :to_i, :value
 
+    # Get collection.
+    # @note Type of usable with a Rails form helper.
+    # @exapmle
+    #  f.select :name, Enum.collection
+    #  f.select :name, Enum.collection(except:[:HOGE])      # Except Enum::HOGE
+    #  f.select :name, Enum.collection(only:[:HOGE, :FUGA]) # Only Enum::HOGE and Enum::FUGA
+    #
+    # @param option [Hash] Options.
+    # @option option [Array<Symbol>] except Except enum.
+    # @option option [Array<Symbol>] only   Limit enum.
+    # @return [Array<Array>] collection.
+    def self.collection(option)
+      map { |e|
+        next if option[:except] and option[:except].include?(e.label)
+        next if option[:only]   and !option[:only].include?(e.label)
+        [e.translate, e.value]
+      }.compact
+    end
+
     # Execute the yield(block) with each member of enum.
     #
     # @param &block [proc{|enum| .. }] execute the block.
     def self.each(&block)
-      enums.each(&block)
+      @enums.each(&block)
     end
 
     # get all labels of Enum.
     #
     # @return [Array<Symbol>] all labels of Enum.
     def self.labels
-      enum_format.keys
+      @enums.map(&:label)
     end
 
     # get Enum length.
     #
     # @return [Integer] count of Enums.
     def self.length
-      enum_format.length
+      @enums.length
+    end
+
+    # Parse object to Enum.
+    #
+    # @param object [Object] string or symbol or integer or Inum::Base.
+    # @return [Inum::Base, Nil] enum or nil.
+    def self.parse(object)
+      case object
+      when String
+        upcase = object.upcase
+        find {|e| e.to_s == upcase}
+      when Symbol
+        upcase = object.upcase
+        find {|e| e.label == upcase}
+      when Integer
+        find {|e| e.value == object}
+      when self
+        object
+      else
+        nil
+      end
+    end
+
+    # Parse object to Enum.
+    # @raise [Inum::NotDefined] raise if not found.
+    #
+    # @param object [Object] string or symbol or integer or Inum::Base.
+    # @return [Inum::Base] enum.
+    def self.parse!(object)
+      parse(object) || raise(Inum::NotDefined)
     end
 
     # return array of Enums.
     #
     # @return [Array<Inum>] sorted array of Enums.
     def self.to_a
-      enums.dup
-    end
-
-    # return hash of Enums.
-    #
-    # @return [Hash<Symbol, Integer>] hash of Enums.
-    def self.to_h
-      enum_format.dup
-    end
-
-    # Parse Object to Enum.(unsafe:An exception may occur.)
-    #
-    # @param object [Object] string or symbol or integer or Inum::Base.
-    # @return [Inum::Base] instance of Inum::Base. or raise Exception.
-    def self.parse!(object)
-      case object
-        when String
-          self.const_get(object)
-        when Symbol
-          parse object.to_s
-        when Integer
-          parse self.enum_format.key(object).to_s
-        when self
-          object
-        else
-          raise ArgumentError, "#{object} is nani?"
-      end
-    end
-
-    # Parse Object to Enum.
-    #
-    # @param object [Object] string or symbol or integer or Inum::Base.
-    # @return [Inum::Base] instance of Inum::Base. or nil.
-    def self.parse(object)
-      case object
-        when String
-          return nil unless labels.include?(object.to_sym)
-        when Symbol
-          return nil unless labels.include?(object)
-        when Integer
-          return nil unless values.include?(object)
-        when self
-          # do nothing.
-        else
-          return nil
-      end
-      parse!(object)
+      @enums.dup
     end
 
     # get all values of Enum.
     #
     # @return [Array<Integer>] all values of Enum.
     def self.values
-      enum_format.values
+      @enums.map(&:value)
     end
 
-
-    # Define Enum in called class.
+    # Define Enum.
     #
     # @param label [Symbol]  label of Enum.
     # @param value [Integer] value of Enum.(default:autoincrement for 0.)
-    def self.define(label, value = enum_format.size)
-      value = value.to_i
+    def self.define(label, value = @enums.size)
       validate_enum_args!(label, value)
 
-      enum = new(label, value)
-      enum_format[label] = value
-
-      enums.push(enum)
-      self.const_set(label, enum)
+      new(label, value).tap do |enum|
+        const_set(label, enum)
+        @enums.push(enum)
+      end
     end
 
-    # get hash of @enum_format.
-    # @private
-    #
-    # @return [Hash] format(hash) of enum.
-    def self.enum_format
-      @enum_format
-    end
-
-    # get array of @enums.
-    # @private
-    #
-    # @return [Array] array of defined enums.
-    def self.enums
-      @enums
-    end
-
-    # get key for I18n.t method.
-    # @note default: Namespace.Classname.Label(label of enum member.)
-    #
-    # @param label [Symbol] label of enum member.
-    # @return [String] key for I18n.t method.
-    # @abstract If change key from the default.
-    def self.i18n_key(label)
-      Inum::Utils::underscore("inum::#{self.name}::#{label}")
-    end
-
-    # call after inherited.
-    #
-    # @note Define hash of :enum_format in child.
+    # Initialize inherited class.
     def self.inherited(child)
-      child.instance_variable_set(:@enum_format, Hash.new)
       child.instance_variable_set(:@enums, Array.new)
     end
 
-    # Validate enum args, and raise exception.
+    # Validate enum args.
+    # @raise [ArgumentError] If argument is wrong.
     #
     # @param label [Object]  label of Enum.
     # @param value [Integer] value of Enum.
     def self.validate_enum_args!(label, value)
       unless label.instance_of?(Symbol)
-        raise ArgumentError, "The label(#{label}!) isn't instance of Symbol."
+        raise ArgumentError, "#{label} isn't instance of Symbol."
+      end
+
+      if labels =~ /[^A-Z\d_]/
+        raise ArgumentError, "#{label} is wrong constant name. Label allow uppercase and digits and underscore."
       end
 
       if labels.include?(label)
-        raise ArgumentError, "The label(#{label}!) already exists!!"
+        raise ArgumentError, "#{label} already exists label."
       end
 
       if values.include?(value)
-        raise ArgumentError, "The value(#{value}!) already exists!!"
+        raise ArgumentError, "#{value} already exists value."
       end
     end
 

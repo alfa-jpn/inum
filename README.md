@@ -24,95 +24,81 @@ Or install it yourself as:
 For example create enum(inum) of Japanese Anime.
 
 ``` ruby
-class AnimeType < Inum::Base
+class AnimeTypes < Inum::Base
   define :EVANGELION, 0
   define :HARUHI,     1
   define :NYARUKO,    2
 end
 ```
 
-If value(integer) is omitted, value(integer) is auto-incremented.
-
-``` ruby
-define :EVANGELION  # => value will auto-increment.
-```
+If the value(integer) is omitted, It is auto-incremented.(deprecated.)
 
 ### Use Enum(Inum)
 How to use Enum(Inum).
 
 ``` ruby
-p AnimeType::EVANGELION.label      # => :EVANGELION (if use to_s, return "EVANGELION")
-p AnimeType::EVANGELION.value      # => 0 (can use to_i.)
-p AnimeType::EVANGELION.translate  # => エヴァンゲリオン (i18n find `inum.anime_type.evangelion`.)
+p AnimeTypes::EVANGELION.label      # => :EVANGELION
+p AnimeTypes::EVANGELION.to_s       # => "EVANGELION"
+p AnimeTypes::EVANGELION.value      # => 0 (can use to_i.)
+p AnimeTypes::EVANGELION.translate  # => エヴァンゲリオン (I18n.t will be called with `anime_types.evangelion`.)
 
-# parse object to instance of AnimeType.
-# object can use class of Symbol or String or Integer or Self.
-type = AnimeType.parse(0)
-p AnimeType::HARUHI.eql?('HARUHI')   # => true (eql? can compare all parsable object.)
+# Parse object.
+# This method is parsable Symbol and String and Integer and Self.
+p AnimeTypes.parse(1) # => AnimeTypes::HARUHI
 
-p AnimeType::HARUHI + 1   # => NYARUKO
-p AnimeType::NYARUKO - 1  # => HARUHI
+# Compare object.
+p AnimeTypes::HARUHI.eql?('HARUHI')   # => true (This method can compare all parsable object.)
 
 # each method.
-AnimeType::each {|enum| p enum }
-
+AnimeTypes.each {|enum| p enum}
 ```
 
 can use Enumerable and Comparable.
 
 - more detail is [Class::Base](http://rubydoc.info/github/alfa-jpn/inum/Inum/Base)
 
-### if use ActiveRecord, can use bind\_inum
+### If use ActiveRecord, can use bind\_inum
 
 ``` ruby
-class Anime < ActiveRecord::Base
-  bind_inum :column => :type, :class => AnimeType
+class Favorite < ActiveRecord::Base
+  bind_inum :anime, AnimeTypes
 end
-
-# if set prefix.
-class Anime < ActiveRecord::Base
-  bind_inum :column => :type, :class => AnimeType, :prefix => nil # remove prefix, when prefix is nil.
-end
-
 ```
 
-bind\_enum generates useful methods and validation.
+bind\_enum wrap accessor of column.
 
 ``` ruby
-anime = Anime.new(type: AnimeType::NYARUKO)
-p anime.type.t # => '這いよれ！ニャル子さん' t is aliased translate.
+fav = Favorite.new(anime: AnimeTypes::NYARUKO)
 
-p anime.type_evangelion? # => false
-p anime.type_nyaruko?    # => true
+# #getter will return instance of AnimeTypes.
+p fav.anime.t # => '這いよれ！ニャル子さん' t is aliased translate.
 
-
-# type can use all parsable object.
+# #setter can set parsable object.
 anime.type = 1
-p anime.type_haruhi? # => true
+anime.type = 'NYARUKO'
 
+# check methods.
+p fav.anime_evangelion? # => false
 ```
 
 ### Localize(i18n)
-to_t methods localize enum by i18n.
-default i18n key is inum.{name_space}.{class_name}.{enum_member_label}.
-If change default, Override i18n_key class method.
-
-``` ruby
-# default i18n_key.
-def self.i18n_key(label)
-  Inum::Utils::underscore("inum::#{self.name}::#{label}")
-end
-```
-
-example
+translate methods localize enum by i18n.
+default i18n key is `#{name_space}.#{class_name}.#{label}`.
 
 ``` yaml
 ja:
-  inum:
-    anime_type:
-      evangelion: 'エヴァンゲリオン'
-      haruhi:     'ハルヒ'
-      nyaruko:    '這いよれ！ニャル子さん'
+  anime_types:
+    evangelion: 'エヴァンゲリオン'
+    haruhi:     'ハルヒ'
+    nyaruko:    '這いよれ！ニャル子さん'
+```
+
+If change default, Override i18n_key class method.
+
+``` ruby
+def self.i18n_key(label)
+  "hogehoge.#{label}"
+end
 ```
 
 ## API DOCUMENT
