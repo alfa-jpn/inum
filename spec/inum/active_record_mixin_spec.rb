@@ -87,6 +87,18 @@ describe Inum::ActiveRecordMixin do
         subject
       end
     end
+
+    context 'When integer value of string' do
+      let(:target){ '1' }
+
+      it 'set value.' do
+        expect {
+          instance.anime = target
+        }.to change {
+          instance.send(:read_attribute, :anime)
+        }.from(type.to_i).to(Anime.parse(1).to_i)
+      end
+    end
   end
 
   describe '#getter' do
