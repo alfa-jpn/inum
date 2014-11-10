@@ -5,18 +5,27 @@
 .yardoc
 Gemfile.lock
 InstalledFiles
-_yardoc
-coverage
-doc/
-lib/bundler/man
-pkg
+
+# doc files.
 rdoc
+_yardoc
+doc
+lib/bundler/man
+
+# test temp files.
 spec/reports
 test/tmp
 test/version_tmp
-tmp
-vendor/
+coverage
+
+# temp directories.
+pkg/
+tmp/
+temp/
+
 
 # IDE Projects files.
 nbproject/
 .project
+.idea/
+

@@ -104,8 +104,8 @@ module Inum
     # @param option [Hash] Options.
     # @option option [Array<Symbol>] except Except enum.
     # @option option [Array<Symbol>] only   Limit enum.
-    # @return [Array<Array>] collection.
-    def self.collection(option)
+    # @return [Array<Array>] collection. ex `[["HOGE", 0], ["FUGA", 1]]`
+    def self.collection(option = {})
       map { |e|
         next if option[:except] and option[:except].include?(e.label)
         next if option[:only]   and !option[:only].include?(e.label)
@@ -115,7 +115,8 @@ module Inum
 
     # Execute the yield(block) with each member of enum.
     #
-    # @param &block [proc{|enum| .. }] execute the block.
+    # @yield [enum] execute the block with enums.
+    # @yieldparam [Inum::Base] enum enum.
     def self.each(&block)
       @enums.each(&block)
     end
