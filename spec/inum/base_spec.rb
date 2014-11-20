@@ -77,7 +77,7 @@ describe Inum::Base do
   end
 
   describe 'Defined enum class' do
-    before :all do
+    before :each do
       class Anime < Inum::Base
         define :NYARUKO,   0
         define :MUROMISAN, 1
@@ -86,7 +86,7 @@ describe Inum::Base do
       end
     end
 
-    after :all do
+    after :each do
       Object.class_eval{ remove_const :Anime }
     end
 
@@ -138,8 +138,26 @@ describe Inum::Base do
 
     describe '#t' do
       subject do
-        expect(I18n).to receive(:t).with('animes.kmb') { 'ok' }
+        expect(I18n).to receive(:t).with(key).once { 'ok' }
         expect(Anime::KMB.t).to eq('ok')
+      end
+
+      let(:key) { 'anime.kmb' }
+
+      it 'behaviour is right.' do
+        subject
+      end
+
+      context 'override .i18n_key' do
+        before :each do
+          Anime.define_singleton_method(:i18n_key) {|path, label| "inum.#{path}.#{label}" }
+        end
+
+        let(:key) { 'inum.anime.kmb' }
+
+        it 'Use overridden key.' do
+          subject
+        end
       end
     end
 
@@ -157,8 +175,12 @@ describe Inum::Base do
 
     describe '#translate' do
       subject do
-        expect(I18n).to receive(:t).with('animes.kmb') { 'ok' }
+        expect(I18n).to receive(:t).with('anime.kmb') { 'ok' }
         expect(Anime::KMB.translate).to eq('ok')
+      end
+
+      it 'behaviour is right.' do
+        subject
       end
     end
 
@@ -259,6 +281,13 @@ describe Inum::Base do
 
       context 'source is integer' do
         let(:source) { 3 }
+        it 'success.' do
+          subject
+        end
+      end
+
+      context 'source is integer of string' do
+        let(:source) { '3' }
         it 'success.' do
           subject
         end

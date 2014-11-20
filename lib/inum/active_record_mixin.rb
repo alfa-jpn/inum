@@ -23,10 +23,6 @@ module Inum
         end
 
         define_method("#{column}=") do |value|
-          if value.class == String and /^\d$/.match(value)
-            value = value.to_i
-          end
-
           enum_class.parse(value).tap do |enum|
             if enum
               write_attribute(column, enum.to_i)

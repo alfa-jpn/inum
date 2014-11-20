@@ -51,6 +51,21 @@ p AnimeTypes::HARUHI.eql?('HARUHI')   # => true (This method can compare all par
 
 # each method.
 AnimeTypes.each {|enum| p enum}
+
+# Get length
+AnimeTypes.length # => 3
+
+# Get labels and values
+AnimeTypes.labels # => [:EVANGELION, :HARUHI, :NYARUKO]
+AnimeTypes.values # => [0, 1, 2]
+
+# Get collection array.
+AnimeTypes.collection # => [["EVANGELION", 0], ["HARUHI", 1], ....]
+
+# collection usually use with some rails view helpers.
+# f.select :name, Enum.collection
+# f.select :name, Enum.collection(except:[:EVANGELION])
+# f.select :name, Enum.collection(only:[:EVANGELION])
 ```
 
 can use Enumerable and Comparable.
@@ -75,6 +90,7 @@ p fav.anime.t # => '這いよれ！ニャル子さん' t is aliased translate.
 
 # #setter can set parsable object.
 anime.type = 1
+anime.type = '1'
 anime.type = 'NYARUKO'
 
 # check methods.
@@ -93,11 +109,13 @@ ja:
     nyaruko:    '這いよれ！ニャル子さん'
 ```
 
-If change default, Override i18n_key class method.
+If you want to change key of i18n, Override i18n_key class method.
 
 ``` ruby
-def self.i18n_key(label)
-  "hogehoge.#{label}"
+class AnimeTypes < Inum::Base
+  def self.i18n_key(underscore_class_path, underscore_label)
+    "inums.#{underscore_class_path}.#{label}"
+  end
 end
 ```
 

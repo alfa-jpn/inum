@@ -24,7 +24,9 @@ module Inum
       @label        = label
       @label_string = label.to_s
       @value        = value
-      @i18n_key     = ActiveSupport::Inflector.underscore("#{self.class.name}::#{label}").gsub('/', '.')
+
+      @underscore_class_path = self.class.name ? ActiveSupport::Inflector.underscore(self.class.name).gsub('/', '.') : ''
+      @underscore_label      = ActiveSupport::Inflector.underscore(label).gsub('/', '.')
     end
 
     # Compare object.
@@ -82,7 +84,7 @@ module Inum
     #
     # @return [String] localized string of Enum.
     def translate
-      I18n.t(@i18n_key)
+      I18n.t(self.class.i18n_key(@underscore_class_path, @underscore_label))
     end
     alias_method :t, :translate
 
@@ -121,6 +123,16 @@ module Inum
       @enums.each(&block)
     end
 
+    # Override the rule of i18n keys.
+    # @abstract if change the rule of i18n keys.
+    #
+    # @param underscore_class_path [String] underscore class name.
+    # @param underscore_label      [String] underscore label.
+    # @return [String] i18n key.
+    def self.i18n_key(underscore_class_path, underscore_label)
+      "#{underscore_class_path}.#{underscore_label}"
+    end
+
     # get all labels of Enum.
     #
     # @return [Array<Symbol>] all labels of Enum.
@@ -142,8 +154,12 @@ module Inum
     def self.parse(object)
       case object
       when String
-        upcase = object.upcase
-        find {|e| e.to_s == upcase}
+        if /^\d+$/.match(object)
+          parse(object.to_i)
+        else
+          upcase = object.upcase
+          find {|e| e.to_s == upcase}
+        end
       when Symbol
         upcase = object.upcase
         find {|e| e.label == upcase}
