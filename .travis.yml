@@ -11,4 +11,7 @@ env:
   - RAILS_VERSION=3.2.20
   - RAILS_VERSION=4.1.7
   - RAILS_VERSION=4.2.0
-  - RAILS_VERSION=5.0.0
+matrix:
+  include:
+    - rvm: 2.3.0
+      env: RAILS_VERSION=5.0.0
