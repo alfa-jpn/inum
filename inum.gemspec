@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "inum"
   spec.version       = Inum::VERSION
   spec.authors       = ["alfa-jpn"]
-  spec.email         = ["a.nkmr.ja@gmail.com"]
+  spec.email         = ["alfa.jpn@gmail.com"]
   spec.description   = "Inum(enumerated type of Integer) provide a java-Enum-like."
   spec.summary       = "Inum(enumerated type of Integer) provide a java-Enum-like."
   spec.homepage      = "https://github.com/alfa-jpn/inum"

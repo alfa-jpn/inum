@@ -40,12 +40,12 @@ describe Inum::Base do
     context 'When define a enum having wrong label' do
       subject do
         Class.new(Inum::Base) {
-          define :red_bull, 0
+          define 'red_bull', 0
         }
       end
 
-      it 'fail validation.' do
-        expect { subject }.to raise_error
+      it 'raise ArgumentError.' do
+        expect { subject }.to raise_error(ArgumentError)
       end
     end
 
@@ -57,8 +57,8 @@ describe Inum::Base do
         }
       end
 
-      it 'fail validation.' do
-        expect { subject }.to raise_error
+      it 'raise ArgumentError.' do
+        expect { subject }.to raise_error(ArgumentError)
       end
     end
 
@@ -70,8 +70,8 @@ describe Inum::Base do
         }
       end
 
-      it 'fail validation.' do
-        expect { subject }.to raise_error
+      it 'raise ArgumentError.' do
+        expect { subject }.to raise_error(ArgumentError)
       end
     end
   end
@@ -230,7 +230,7 @@ describe Inum::Base do
 
     describe '.new' do
       it 'Can not create a instance of enum.' do
-        expect{ Anime.new(:NICONICO, 2525) }.to raise_error
+        expect{ Anime.new(:NICONICO, 2525) }.to raise_error(NoMethodError)
       end
     end
 
@@ -326,8 +326,8 @@ describe Inum::Base do
       context '#parse return nil' do
         let(:returning_value) { nil }
 
-        it 'raise error.' do
-          expect{subject}.to raise_error
+        it 'raise Inum::NotDefined.' do
+          expect{subject}.to raise_error(Inum::NotDefined)
         end
       end
     end

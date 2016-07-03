@@ -223,10 +223,6 @@ module Inum
         raise ArgumentError, "#{label} isn't instance of Symbol."
       end
 
-      if labels =~ /[^A-Z\d_]/
-        raise ArgumentError, "#{label} is wrong constant name. Label allow uppercase and digits and underscore."
-      end
-
       if labels.include?(label)
         raise ArgumentError, "#{label} already exists label."
       end
