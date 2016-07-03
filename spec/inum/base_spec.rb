@@ -44,7 +44,7 @@ describe Inum::Base do
         }
       end
 
-      it 'raise ArgumentError.' do
+      it 'Raise ArgumentError.' do
         expect { subject }.to raise_error(ArgumentError)
       end
     end
@@ -57,7 +57,7 @@ describe Inum::Base do
         }
       end
 
-      it 'raise ArgumentError.' do
+      it 'Raise ArgumentError.' do
         expect { subject }.to raise_error(ArgumentError)
       end
     end
@@ -70,7 +70,7 @@ describe Inum::Base do
         }
       end
 
-      it 'raise ArgumentError.' do
+      it 'Raise ArgumentError.' do
         expect { subject }.to raise_error(ArgumentError)
       end
     end
@@ -79,10 +79,11 @@ describe Inum::Base do
   describe 'Defined enum class' do
     before :each do
       class Anime < Inum::Base
-        define :NYARUKO,   0
-        define :MUROMISAN, 1
-        define :NOURIN,    2
+        define :Nyaruko,   0
+        define :Muromisan, 1
+        define :Nourin,    2
         define :KMB,       3
+        define :Bakuon,    4
       end
     end
 
@@ -93,32 +94,32 @@ describe Inum::Base do
     describe '#<=>' do
       context 'self == other' do
         it 'Return 0.' do
-          expect(Anime::MUROMISAN <=> 1).to eq(0)
+          expect(Anime::Muromisan <=> 1).to eq(0)
         end
       end
 
       context 'self < other' do
         it 'Return a negative values.' do
-          expect(Anime::MUROMISAN <=> 2).to be < 0
+          expect(Anime::Muromisan <=> 2).to be < 0
         end
       end
 
       context 'self > other' do
         it 'Return a positive values.' do
-          expect(Anime::MUROMISAN <=> 0).to be > 0
+          expect(Anime::Muromisan <=> 0).to be > 0
         end
       end
     end
 
     describe '#+' do
       it 'Returning value is correct.' do
-        expect(Anime::NYARUKO + 1).to eq(Anime::MUROMISAN)
+        expect(Anime::Nyaruko + 1).to eq(Anime::Muromisan)
       end
     end
 
     describe '#-' do
       it 'Returning value is correct.' do
-        expect(Anime::MUROMISAN - 1).to eq(Anime::NYARUKO)
+        expect(Anime::Muromisan - 1).to eq(Anime::Nyaruko)
       end
     end
 
@@ -131,7 +132,7 @@ describe Inum::Base do
 
       context 'When compare other enum' do
         it 'Return falsey value.' do
-          expect(Anime::KMB.eql?(Anime::NYARUKO)).to be_falsey
+          expect(Anime::KMB.eql?(Anime::Nyaruko)).to be_falsey
         end
       end
     end
@@ -169,7 +170,19 @@ describe Inum::Base do
 
     describe '#to_s ' do
       it 'Return string.' do
-        expect(Anime::NOURIN.to_s).to eq('NOURIN')
+        expect(Anime::Nourin.to_s).to eq('Nourin')
+      end
+    end
+
+    describe '#dowcase ' do
+      it 'Return lowercase string.' do
+        expect(Anime::Bakuon.downcase).to eq('bakuon')
+      end
+    end
+
+    describe '#upcase ' do
+      it 'Return uppercase string.' do
+        expect(Anime::Bakuon.upcase).to eq('BAKUON')
       end
     end
 
@@ -204,6 +217,7 @@ describe Inum::Base do
           ['t', 1],
           ['t', 2],
           ['t', 3],
+          ['t', 4]
         ])
       end
 
@@ -223,6 +237,7 @@ describe Inum::Base do
             ['t', 0],
             ['t', 1],
             ['t', 2],
+            ['t', 4]
           ])
         end
       end
@@ -237,7 +252,7 @@ describe Inum::Base do
     describe '.each' do
       it 'Execute block with a right order.' do
         count  = 0
-        orders = [Anime::NYARUKO, Anime::MUROMISAN, Anime::NOURIN, Anime::KMB]
+        orders = [Anime::Nyaruko, Anime::Muromisan, Anime::Nourin, Anime::KMB, Anime::Bakuon]
 
         Anime.each do |enum|
           expect(enum).to eq(orders[count])
@@ -248,13 +263,13 @@ describe Inum::Base do
 
     describe '.labels' do
       it 'Return array of label.' do
-        expect(Anime.labels).to match_array([:NYARUKO, :MUROMISAN, :NOURIN, :KMB])
+        expect(Anime.labels).to match_array([:Nyaruko, :Muromisan, :Nourin, :KMB, :Bakuon])
       end
     end
 
     describe '.length' do
       it 'Return correct count of enum.' do
-        expect(Anime.length).to eq(4)
+        expect(Anime.length).to eq(5)
       end
     end
 
@@ -263,47 +278,47 @@ describe Inum::Base do
         expect(Anime.parse(source)).to eq(destination)
       end
 
-      let(:destination) { Anime::KMB }
+      let(:destination) { Anime::Bakuon }
 
-      context 'source is string' do
-        let(:source) { 'KMB' }
+      context 'When source is string' do
+        let(:source) { 'Bakuon' }
+        it 'Return inum.' do
+          subject
+        end
+      end
+
+      context 'When source is symbol' do
+        let(:source) { :bakuon }
+        it 'Return inum.' do
+          subject
+        end
+      end
+
+      context 'When source is integer' do
+        let(:source) { 4 }
         it 'success.' do
           subject
         end
       end
 
-      context 'source is symbol' do
-        let(:source) { :kmb }
-        it 'success.' do
+      context 'When source is integer of string' do
+        let(:source) { '4' }
+        it 'Return inum.' do
           subject
         end
       end
 
-      context 'source is integer' do
-        let(:source) { 3 }
-        it 'success.' do
+      context 'When source is enum' do
+        let(:source) { Anime::Bakuon }
+        it 'Return inum.' do
           subject
         end
       end
 
-      context 'source is integer of string' do
-        let(:source) { '3' }
-        it 'success.' do
-          subject
-        end
-      end
-
-      context 'source is enum' do
-        let(:source) { Anime::KMB }
-        it 'success.' do
-          subject
-        end
-      end
-
-      context 'source is incorrect' do
+      context 'When source is incorrect' do
         let(:source) { '' }
         let(:destination) { nil }
-        it 'return nil.' do
+        it 'Return inum.' do
           subject
         end
       end
@@ -315,18 +330,18 @@ describe Inum::Base do
         expect(Anime.parse!(:hoge)).to eq(returning_value)
       end
 
-      context '#parse return enum' do
+      context 'When #parse return enum' do
         let(:returning_value) { Anime::KMB }
 
-        it 'success.' do
+        it 'Return inum.' do
           subject
         end
       end
 
-      context '#parse return nil' do
+      context 'When #parse return nil' do
         let(:returning_value) { nil }
 
-        it 'raise Inum::NotDefined.' do
+        it 'Raise Inum::NotDefined.' do
           expect{subject}.to raise_error(Inum::NotDefined)
         end
       end
@@ -334,13 +349,13 @@ describe Inum::Base do
 
     describe '.to_a' do
       it 'Return array of enum.' do
-        expect(Anime.to_a).to match_array([Anime::NYARUKO, Anime::MUROMISAN, Anime::NOURIN, Anime::KMB])
+        expect(Anime.to_a).to match_array([Anime::Nyaruko, Anime::Muromisan, Anime::Nourin, Anime::KMB, Anime::Bakuon])
       end
     end
 
     describe '.values' do
       it 'Return array of value.' do
-        expect(Anime.values).to match_array([0, 1, 2, 3])
+        expect(Anime.values).to match_array([0, 1, 2, 3, 4])
       end
     end
   end

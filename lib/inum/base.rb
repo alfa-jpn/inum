@@ -21,9 +21,11 @@ module Inum
     # @param label [Symbol]  label of Enum.
     # @param value [Integer] value of Enum.
     def initialize(label, value)
-      @label        = label
-      @label_string = label.to_s
-      @value        = value
+      @label          = label.freeze
+      @label_string   = label.to_s.freeze
+      @label_downcase = @label_string.downcase.freeze
+      @label_upcase   = @label_string.upcase.freeze
+      @value          = value.freeze
 
       @underscore_class_path = self.class.name ? ActiveSupport::Inflector.underscore(self.class.name).gsub('/', '.') : ''
       @underscore_label      = ActiveSupport::Inflector.underscore(label).gsub('/', '.')
@@ -59,7 +61,7 @@ module Inum
 
     # Compare object.
     #
-    # @param [Object] parsable object.
+    # @param [Object] object parsable object.
     # @return [Boolean] result.
     def eql?(object)
       self.equal?(self.class.parse(object))
@@ -77,6 +79,20 @@ module Inum
     # @return [String] Label(String).
     def to_s
       @label_string
+    end
+
+    # Downcase label.
+    #
+    # @return [String] downcase label.
+    def downcase
+      @label_downcase
+    end
+
+    # Upcase label.
+    #
+    # @return [String] uppercase label.
+    def upcase
+      @label_upcase
     end
 
     # Translate Enum to localized string.(use i18n)
@@ -157,12 +173,11 @@ module Inum
         if /^\d+$/.match(object)
           parse(object.to_i)
         else
-          upcase = object.upcase
-          find {|e| e.to_s == upcase}
+          downcase = object.downcase
+          find {|e| e.downcase == downcase}
         end
       when Symbol
-        upcase = object.upcase
-        find {|e| e.label == upcase}
+        parse(object.to_s)
       when Integer
         find {|e| e.value == object}
       when self
