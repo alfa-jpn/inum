@@ -1,7 +1,8 @@
 source 'https://rubygems.org'
 
-if ENV['ACTIVE_RECORD_VERSION']
-  gem 'activerecord', ENV['ACTIVE_RECORD_VERSION']
+if ENV['RAILS_VERSION']
+  gem 'activerecord',  ENV['RAILS_VERSION']
+  gem 'activesupport', ENV['RAILS_VERSION']
 end
 
 # Specify your gem's dependencies in inum.gemspec
