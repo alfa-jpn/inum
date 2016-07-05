@@ -21,14 +21,13 @@ module Inum
     # @param label [Symbol]  label of Enum.
     # @param value [Integer] value of Enum.
     def initialize(label, value)
-      @label          = label.freeze
-      @label_string   = label.to_s.freeze
-      @label_downcase = @label_string.downcase.freeze
-      @label_upcase   = @label_string.upcase.freeze
-      @value          = value.freeze
-
-      @underscore_class_path = self.class.name ? ActiveSupport::Inflector.underscore(self.class.name).gsub('/', '.') : ''
-      @underscore_label      = ActiveSupport::Inflector.underscore(label).gsub('/', '.')
+      @label            = label.freeze
+      @label_string     = label.to_s.freeze
+      @label_downcase   = @label_string.downcase.freeze
+      @label_upcase     = @label_string.upcase.freeze
+      @label_underscore = ActiveSupport::Inflector.underscore(label).gsub('/', '.').freeze
+      @value            = value.freeze
+      @i18n_namespace   = (self.class.name ? ActiveSupport::Inflector.underscore(self.class.name).gsub('/', '.') : '').freeze
     end
 
     # Compare object.
@@ -95,12 +94,19 @@ module Inum
       @label_upcase
     end
 
+    # Underscore label.
+    #
+    # @return [String] underscore label.
+    def underscore
+      @label_underscore
+    end
+
     # Translate Enum to localized string.(use i18n)
     # @note find default `Namespace.Classname.EnumMember`
     #
     # @return [String] localized string of Enum.
     def translate
-      I18n.t(self.class.i18n_key(@underscore_class_path, @underscore_label))
+      I18n.t(self.class.i18n_key(@i18n_namespace, @label_underscore))
     end
     alias_method :t, :translate
 
@@ -220,12 +226,17 @@ module Inum
       new(label, value).tap do |enum|
         const_set(label, enum)
         @enums.push(enum)
+        @enums.sort! {|a, b| a.to_i <=> b.to_i }
       end
     end
 
     # Initialize inherited class.
     def self.inherited(child)
-      child.instance_variable_set(:@enums, Array.new)
+      if self == Inum::Base
+        child.instance_variable_set(:@enums, Array.new)
+      else
+        child.instance_variable_set(:@enums, self.to_a)
+      end
     end
 
     # Validate enum args.
@@ -236,6 +247,10 @@ module Inum
     def self.validate_enum_args!(label, value)
       unless label.instance_of?(Symbol)
         raise ArgumentError, "#{label} isn't instance of Symbol."
+      end
+
+      unless value.kind_of?(Numeric)
+        raise ArgumentError, "#{value} isn't instance of Integer."
       end
 
       if labels.include?(label)

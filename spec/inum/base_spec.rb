@@ -37,7 +37,7 @@ describe Inum::Base do
       end
     end
 
-    context 'When define a enum having wrong label' do
+    context 'When define a enum with wrong label' do
       subject do
         Class.new(Inum::Base) {
           define 'red_bull', 0
@@ -49,7 +49,7 @@ describe Inum::Base do
       end
     end
 
-    context 'When define a enum having duplicate label' do
+    context 'When define a enum with duplicated label' do
       subject do
         Class.new(Inum::Base) {
           define :RED_BULL, 0
@@ -62,7 +62,19 @@ describe Inum::Base do
       end
     end
 
-    context 'When define a enum having duplicate value' do
+    context 'When define a enum with nan value' do
+      subject do
+        Class.new(Inum::Base) {
+          define :RED_BULL, 'hahaha'
+        }
+      end
+
+      it 'Raise ArgumentError.' do
+        expect { subject }.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'When define a enum with duplicate value' do
       subject do
         Class.new(Inum::Base) {
           define :RED_BULL, 0
@@ -83,7 +95,7 @@ describe Inum::Base do
         define :Muromisan, 1
         define :Nourin,    2
         define :KMB,       3
-        define :Bakuon,    4
+        define :BakuOn,    5
       end
     end
 
@@ -176,13 +188,19 @@ describe Inum::Base do
 
     describe '#dowcase ' do
       it 'Return lowercase string.' do
-        expect(Anime::Bakuon.downcase).to eq('bakuon')
+        expect(Anime::BakuOn.downcase).to eq('bakuon')
       end
     end
 
     describe '#upcase ' do
       it 'Return uppercase string.' do
-        expect(Anime::Bakuon.upcase).to eq('BAKUON')
+        expect(Anime::BakuOn.upcase).to eq('BAKUON')
+      end
+    end
+
+    describe '#underscore ' do
+      it 'Return underscore string.' do
+        expect(Anime::BakuOn.underscore).to eq('baku_on')
       end
     end
 
@@ -217,7 +235,7 @@ describe Inum::Base do
           ['t', 1],
           ['t', 2],
           ['t', 3],
-          ['t', 4]
+          ['t', 5]
         ])
       end
 
@@ -237,7 +255,7 @@ describe Inum::Base do
             ['t', 0],
             ['t', 1],
             ['t', 2],
-            ['t', 4]
+            ['t', 5]
           ])
         end
       end
@@ -252,7 +270,7 @@ describe Inum::Base do
     describe '.each' do
       it 'Execute block with a right order.' do
         count  = 0
-        orders = [Anime::Nyaruko, Anime::Muromisan, Anime::Nourin, Anime::KMB, Anime::Bakuon]
+        orders = [Anime::Nyaruko, Anime::Muromisan, Anime::Nourin, Anime::KMB, Anime::BakuOn]
 
         Anime.each do |enum|
           expect(enum).to eq(orders[count])
@@ -263,7 +281,7 @@ describe Inum::Base do
 
     describe '.labels' do
       it 'Return array of label.' do
-        expect(Anime.labels).to match_array([:Nyaruko, :Muromisan, :Nourin, :KMB, :Bakuon])
+        expect(Anime.labels).to match_array([:Nyaruko, :Muromisan, :Nourin, :KMB, :BakuOn])
       end
     end
 
@@ -278,7 +296,7 @@ describe Inum::Base do
         expect(Anime.parse(source)).to eq(destination)
       end
 
-      let(:destination) { Anime::Bakuon }
+      let(:destination) { Anime::BakuOn }
 
       context 'When source is string' do
         let(:source) { 'Bakuon' }
@@ -295,21 +313,21 @@ describe Inum::Base do
       end
 
       context 'When source is integer' do
-        let(:source) { 4 }
+        let(:source) { 5 }
         it 'success.' do
           subject
         end
       end
 
       context 'When source is integer of string' do
-        let(:source) { '4' }
+        let(:source) { '5' }
         it 'Return inum.' do
           subject
         end
       end
 
       context 'When source is enum' do
-        let(:source) { Anime::Bakuon }
+        let(:source) { Anime::BakuOn }
         it 'Return inum.' do
           subject
         end
@@ -349,13 +367,43 @@ describe Inum::Base do
 
     describe '.to_a' do
       it 'Return array of enum.' do
-        expect(Anime.to_a).to match_array([Anime::Nyaruko, Anime::Muromisan, Anime::Nourin, Anime::KMB, Anime::Bakuon])
+        expect(Anime.to_a).to match_array([Anime::Nyaruko, Anime::Muromisan, Anime::Nourin, Anime::KMB, Anime::BakuOn])
       end
     end
 
     describe '.values' do
       it 'Return array of value.' do
-        expect(Anime.values).to match_array([0, 1, 2, 3, 4])
+        expect(Anime.values).to match_array([0, 1, 2, 3, 5])
+      end
+    end
+
+    context 'After extend Anime' do
+      describe 'Defined enum class' do
+        before :each do
+          class Anime2016 < Anime
+            define :GanbaruZoi, 4
+          end
+        end
+
+        after :each do
+          Object.class_eval{ remove_const :Anime2016 }
+        end
+
+        describe '.values' do
+          it 'Return array of value.' do
+            expect(Anime2016.values).to match_array([0, 1, 2, 3, 4, 5])
+          end
+
+          it 'Order is valid.' do
+            expect(Anime2016.values[4]).to eq(4)
+          end
+        end
+
+        describe 'extend enum' do
+          it 'is no impact.' do
+            expect(Anime.length).to eq(5)
+          end
+        end
       end
     end
   end
