@@ -299,14 +299,14 @@ describe Inum::Base do
       let(:destination) { Anime::BakuOn }
 
       context 'When source is string' do
-        let(:source) { 'Bakuon' }
+        let(:source) { 'baku_on' }
         it 'Return inum.' do
           subject
         end
       end
 
       context 'When source is symbol' do
-        let(:source) { :bakuon }
+        let(:source) { :baku_on }
         it 'Return inum.' do
           subject
         end
