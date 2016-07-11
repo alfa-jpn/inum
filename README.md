@@ -40,6 +40,7 @@ How to use Enum(Inum).
 p AnimeTypes::EVANGELION.label      # => :EVANGELION
 p AnimeTypes::EVANGELION.to_s       # => "EVANGELION"
 p AnimeTypes::EVANGELION.downcase   # => "evangelion"
+p AnimeTypes::EVANGELION.underscore # => "evangelion"
 p AnimeTypes::EVANGELION.upcase     # => "EVANGELION"
 p AnimeTypes::EVANGELION.value      # => 0 (can use to_i.)
 p AnimeTypes::EVANGELION.translate  # => エヴァンゲリオン (I18n.t will be called with `anime_types.evangelion`.)

@@ -179,8 +179,8 @@ module Inum
         if /^\d+$/.match(object)
           parse(object.to_i)
         else
-          downcase = object.downcase
-          find {|e| e.downcase == downcase}
+          underscore = object.underscore
+          find {|e| e.underscore == underscore}
         end
       when Symbol
         parse(object.to_s)
