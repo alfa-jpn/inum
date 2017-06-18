@@ -3,6 +3,10 @@
 Inum(enumerated type of Integer) provide a Java-enum-like Enum.
 Inum has a function to localize by i18n.
 
+[![Build Status](https://travis-ci.org/alfa-jpn/inum.svg?branch=master)](https://travis-ci.org/alfa-jpn/inum)
+[![Coverage Status](https://coveralls.io/repos/github/alfa-jpn/inum/badge.svg?branch=master)](https://coveralls.io/github/alfa-jpn/inum?branch=master)
+[![Code Climate](https://codeclimate.com/github/alfa-jpn/inum/badges/gpa.svg)](https://codeclimate.com/github/alfa-jpn/inum)
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -134,4 +138,8 @@ end
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-# I have poor English. Please help meeeeeeeee!!!!
+### Testing
+
+```shell
+$ bundle exec rspec
+```
