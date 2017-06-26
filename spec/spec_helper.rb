@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'active_record'
+require 'coveralls'
 require 'inum'
 
 RSpec.configure do |config|
@@ -11,6 +12,8 @@ RSpec.configure do |config|
     I18n.enforce_available_locales = false
   }
 end
+
+Coveralls.wear!
 
 def create_temp_table(name, &block)
   raise 'No Block given!' unless block_given?
