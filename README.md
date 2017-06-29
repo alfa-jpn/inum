@@ -66,13 +66,13 @@ AnimeTypes.length # => 3
 AnimeTypes.labels # => [:EVANGELION, :HARUHI, :NYARUKO]
 AnimeTypes.values # => [0, 1, 2]
 
-# Get collection array.
-AnimeTypes.collection # => [["EVANGELION", 0], ["HARUHI", 1], ....]
+# Get form items.
+AnimeTypes.form_items # => [['エヴァンゲリオン', 'EVANGELION'], ['涼宮ハルヒの憂鬱', 'HARUHI'], ....]
 
-# collection usually use with some rails view helpers.
-# f.select :name, Enum.collection
-# f.select :name, Enum.collection(except:[:EVANGELION])
-# f.select :name, Enum.collection(only:[:EVANGELION])
+# form_items usually use with some rails view helpers.
+# f.select :name, Enum.form_items
+# f.select :name, Enum.form_items(except:[:EVANGELION])
+# f.select :name, Enum.form_items(only:[:EVANGELION])
 ```
 
 can use Enumerable and Comparable.

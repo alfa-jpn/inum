@@ -1,4 +1,3 @@
-require 'rspec'
 require 'spec_helper'
 
 describe Inum::Base do
@@ -221,46 +220,6 @@ describe Inum::Base do
       end
     end
 
-    describe '.collection' do
-      subject do
-        allow(I18n).to receive(:t) { 't' }
-        Anime.collection(option)
-      end
-
-      let(:option) { Hash.new }
-
-      it 'Return all item array.' do
-        expect(subject).to match_array([
-          ['t', 0],
-          ['t', 1],
-          ['t', 2],
-          ['t', 3],
-          ['t', 5]
-        ])
-      end
-
-      context 'When with only option' do
-        let(:option) { {only: [:KMB]} }
-
-        it 'Return only selected item array.' do
-          expect(subject).to match_array([['t', 3]])
-        end
-      end
-
-      context 'When with except option' do
-        let(:option) { {except: [:KMB]} }
-
-        it 'Return only except item array.' do
-          expect(subject).to match_array([
-            ['t', 0],
-            ['t', 1],
-            ['t', 2],
-            ['t', 5]
-          ])
-        end
-      end
-    end
-
     describe '.new' do
       it 'Can not create a instance of enum.' do
         expect{ Anime.new(:NICONICO, 2525) }.to raise_error(NoMethodError)
@@ -275,6 +234,46 @@ describe Inum::Base do
         Anime.each do |enum|
           expect(enum).to eq(orders[count])
           count += 1
+        end
+      end
+    end
+
+    describe '.form_items' do
+      subject do
+        allow(I18n).to receive(:t) { |key| "t-key-#{key}" }
+        Anime.form_items(option)
+      end
+
+      let(:option) { Hash.new }
+
+      it 'Return all item array.' do
+        expect(subject).to match_array([
+          ['t-key-anime.nyaruko',   'Nyaruko'],
+          ['t-key-anime.muromisan', 'Muromisan'],
+          ['t-key-anime.nourin',    'Nourin'],
+          ['t-key-anime.kmb',       'KMB'],
+          ['t-key-anime.baku_on',   'BakuOn'],
+        ])
+      end
+
+      context 'When with only option' do
+        let(:option) { {only: [:KMB]} }
+
+        it 'Return only selected item array.' do
+          expect(subject).to match_array([['t-key-anime.kmb', 'KMB']])
+        end
+      end
+
+      context 'When with except option' do
+        let(:option) { {except: [:KMB]} }
+
+        it 'Return only except item array.' do
+          expect(subject).to match_array([
+            ['t-key-anime.nyaruko',   'Nyaruko'],
+            ['t-key-anime.muromisan', 'Muromisan'],
+            ['t-key-anime.nourin',    'Nourin'],
+            ['t-key-anime.baku_on',   'BakuOn'],
+          ])
         end
       end
     end

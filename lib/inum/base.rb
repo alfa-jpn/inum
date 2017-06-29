@@ -2,9 +2,8 @@ module Inum
   require 'active_support/inflector'
   require 'i18n'
 
-  # InumBase class.
-  #
-  # @abstract Inum class should be a inheritance of Inum::Base.
+  # Inum base class.
+  # @abstract Inum::Base class should be a inheritance of Inum::Base.
   # @example
   #   class FruitType < Inum::Base
   #     define :APPLE,  0
@@ -25,9 +24,9 @@ module Inum
       @label_string     = label.to_s.freeze
       @label_downcase   = @label_string.downcase.freeze
       @label_upcase     = @label_string.upcase.freeze
-      @label_underscore = ActiveSupport::Inflector.underscore(label).gsub('/', '.').freeze
+      @label_underscore = ActiveSupport::Inflector.underscore(@label_string).freeze
       @value            = value.freeze
-      @i18n_namespace   = (self.class.name ? ActiveSupport::Inflector.underscore(self.class.name).gsub('/', '.') : '').freeze
+      @i18n_namespace   = (self.class.name ? ActiveSupport::Inflector.underscore(self.class.name).tr('/', '.') : '').freeze
     end
 
     # Compare object.
@@ -35,7 +34,7 @@ module Inum
     # @param object [Object] parsable object.
     # @return [Integer] same normal <=>.
     def <=> (object)
-      if other = self.class.parse(object)
+      if (other = self.class.parse(object))
         @value <=> other.to_i
       else
         nil
@@ -102,7 +101,7 @@ module Inum
     end
 
     # Translate Enum to localized string.(use i18n)
-    # @note find default `Namespace.Classname.EnumMember`
+    # @note find default `namespace.enum_class_name.enum_label`
     #
     # @return [String] localized string of Enum.
     def translate
@@ -118,31 +117,31 @@ module Inum
     end
     alias_method :to_i, :value
 
-    # Get collection.
-    # @note Type of usable with a Rails form helper.
-    # @exapmle
-    #  f.select :name, Enum.collection
-    #  f.select :name, Enum.collection(except:[:HOGE])      # Except Enum::HOGE
-    #  f.select :name, Enum.collection(only:[:HOGE, :FUGA]) # Only Enum::HOGE and Enum::FUGA
-    #
-    # @param option [Hash] Options.
-    # @option option [Array<Symbol>] except Except enum.
-    # @option option [Array<Symbol>] only   Limit enum.
-    # @return [Array<Array>] collection. ex `[["HOGE", 0], ["FUGA", 1]]`
-    def self.collection(option = {})
-      map { |e|
-        next if option[:except] and option[:except].include?(e.label)
-        next if option[:only]   and !option[:only].include?(e.label)
-        [e.translate, e.value]
-      }.compact
-    end
-
     # Execute the yield(block) with each member of enum.
     #
     # @yield [enum] execute the block with enums.
     # @yieldparam [Inum::Base] enum enum.
     def self.each(&block)
       @enums.each(&block)
+    end
+
+    # Get items for rails form.
+    # @note Type of usable with a Rails form helper.
+    # @example
+    #  f.select :name, Enum.form_items
+    #  f.select :name, Enum.form_items(except:[:HOGE])      # Except Enum::HOGE
+    #  f.select :name, Enum.form_items(only:[:HOGE, :FUGA]) # Only Enum::HOGE and Enum::FUGA
+    #
+    # @param option [Hash] Options.
+    # @option option [Array<Symbol>] except Except enum.
+    # @option option [Array<Symbol>] only   Limit enum.
+    # @return [Array<Array>] collection. ex `[["HOGE", 0], ["FUGA", 1]]`
+    def self.form_items(option = {})
+      map { |e|
+        next if option[:except] and option[:except].include?(e.label)
+        next if option[:only]   and !option[:only].include?(e.label)
+        [e.translate, e.to_s]
+      }.compact
     end
 
     # Override the rule of i18n keys.
@@ -180,12 +179,12 @@ module Inum
           parse(object.to_i)
         else
           underscore = object.underscore
-          find {|e| e.underscore == underscore}
+          find { |e| e.underscore == underscore }
         end
       when Symbol
         parse(object.to_s)
       when Integer
-        find {|e| e.value == object}
+        find { |e| e.value == object }
       when self
         object
       else
