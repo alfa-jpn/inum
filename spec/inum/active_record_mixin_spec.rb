@@ -1,8 +1,7 @@
-require 'rspec'
 require 'spec_helper'
 
 describe Inum::ActiveRecordMixin do
-  create_temp_table(:tvs){|t| t.integer :anime}
+  create_temp_table(:tvs) { |t| t.integer :anime }
 
   before :each do
     class Anime < Inum::Base
@@ -23,7 +22,7 @@ describe Inum::ActiveRecordMixin do
   end
 
   let :bind_class do
-    TV.tap {|klass| klass.instance_eval{ bind_inum :anime, Anime } }
+    TV.tap { |klass| klass.instance_eval{ bind_inum :anime, Anime } }
   end
 
   let :instance do
@@ -99,11 +98,23 @@ describe Inum::ActiveRecordMixin do
         }.from(type.to_i).to(Anime.parse(1).to_i)
       end
     end
+
+    context 'When invalid value' do
+      let(:target){ 'Hoge' }
+
+      it 'set value.' do
+        expect {
+          instance.anime = target
+        }.to change {
+          instance.send(:read_attribute, :anime)
+        }.from(type.to_i).to(nil)
+      end
+    end
   end
 
   describe '#getter' do
     it 'Return enum' do
-      expect(instance.anime.instance_of?(Anime)).to be_truthy
+      expect(instance.anime).to be_instance_of(Anime)
     end
   end
 
@@ -114,7 +125,7 @@ describe Inum::ActiveRecordMixin do
 
     describe 'Comparison methods' do
       it 'Will be defined with prefix.' do
-        expect(bind_class.method_defined?(:prefix_nyaruko?)).to   be_truthy
+        expect(bind_class.method_defined?(:prefix_nyaruko?)).to be_truthy
       end
     end
   end
