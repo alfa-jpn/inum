@@ -41,9 +41,7 @@ jobs:
       - name: bundle install
         env:
           RAILS_VERSION: ${{ matrix.rails_version }}
-        run: |
-          gem install bundler
-          bundle install
+        run: bundle install --retry=3 --jobs=3
 
       - name: run rspec
         run: bundle exec rspec
